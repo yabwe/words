@@ -1,6 +1,6 @@
 var Util = {
 
-	blockNames: ['address', 'blockquote', 'div', 'dl', 'fieldset', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'noscript', 'ol', 'p', 'pre', 
+	blockNames: ['address', 'blockquote', 'div', 'dl', 'fieldset', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'noscript', 'ol', 'p', 'pre',
 
 	'article', 'aside', 'audio', 'canvas', 'dd', 'figcaption', 'figure', 'footer', 'hgroup', 'main', 'nav', 'output', 'section', 'table', 'tfoot', 'ul', 'video',
 
@@ -11,28 +11,77 @@ var Util = {
     }
 }
 
-var Block = function () {
-	this.words = [];
+
+var Document = function (root) {
+	if (!root) {
+		this.blocks = [new Block()];
+	} else {
+		this.blocks = [];
+		Array.prototype.slice.call(root.childNodes).forEach(function (element) {
+			this.blocks.push(new Block(element));
+		}, this);
+	}
 }
 
-Block.prototype = {
+Document.prototype = {
 	toString: function () {
-		if (!this.words.length) {
-			return '<br/>';
-		} else {
-			return this.words.join(' ');
-		}
+		return this.blocks.join('\r\n');
 	}
 }
 
 
-var Word = function () {
-	this.chars = [];
+
+var Block = function (root) {
+	this.words = [];
+	if (!root) {
+		return;
+	}
+
+	var skipRoot = false;
+	if (Util.blockNames.indexOf(root.nodeName.toLowerCase()) !== -1) {
+		this.type = root.nodeName.toLowerCase();
+		skipRoot = true;
+	}
+	var x = null;
+	var treeWalker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, x, false);
+	while (treeWalker.nextNode()) {
+		var node = treeWalker.currentNode;
+		if (skipRoot && node === root) {
+			continue;
+		}
+		if (node.nodeType === 3) {
+			var parts = node.nodeValue.split(' ');
+			parts.forEach(function (part) {
+				this.words.push(new Word(part));
+			}, this);
+		} else {
+			this.words.push(new Word('<' + node.nodeName + '>'));
+		}
+	}
+}
+
+Block.prototype = {
+	type: 'p',
+
+	toString: function () {
+		var str = '<' + this.type + '>';
+		if (!this.words.length) {
+			str += '<br/>';
+		} else {
+			str += this.words.join(' ');
+		}
+		return str + '</' + this.type + '>';
+	}
+}
+
+
+var Word = function (text) {
+	this.chars = (text) ? Array.prototype.slice.call(text) : [];
 }
 
 Word.prototype = {
 	toString: function () {
-		return this.chars.join();
+		return this.chars.join('');
 	}
 }
 
@@ -55,11 +104,17 @@ var Words = function (selector) {
 
 	Util.on(this.element, 'keyup', this.onInput.bind(this));
 
-	this.blocks = [new Block()];
+	this.doc = new Document(this.element);
 }
 
 Words.prototype = {
 	onInput: function (event) {
+
+		var newDoc = new Document(event.currentTarget);
+		document.getElementById('previous-state').value = this.doc.toString();
+		document.getElementById('new-state').value = newDoc.toString();
+		this.doc = newDoc;
+		/*
 		var x = null;
 		var treeWalker = document.createTreeWalker(event.currentTarget, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, x, false);
 		var str = '';
@@ -74,7 +129,7 @@ Words.prototype = {
 			}
 		}
 		document.getElementById('output-inner').value = str + 'END';
-		document.getElementById('output').value = event.currentTarget.textContent;
+		document.getElementById('output').value = event.currentTarget.textContent;*/
 		// document.getElementById('output-inner').value = event.currentTarget.innerText;
 	}
 }
