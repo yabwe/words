@@ -105,15 +105,29 @@ var Words = function (selector) {
 	Util.on(this.element, 'keyup', this.onInput.bind(this));
 
 	this.doc = new Document(this.element);
+
+	Array.prototype.slice.call(document.querySelectorAll('button')).forEach(function (button) {
+		Util.on(button, 'click', this.onToolbarButtonClick.bind(this));
+	}, this);
 }
 
 Words.prototype = {
-	onInput: function (event) {
 
-		var newDoc = new Document(event.currentTarget);
+	onToolbarButtonClick: function (event) {
+		document.execCommand(event.currentTarget.getAttribute('data-action'), null, false);
+		this.updateState(this.element);
+	},
+
+	updateState: function (element) {
+		var newDoc = new Document(element);
 		document.getElementById('previous-state').value = this.doc.toString();
 		document.getElementById('new-state').value = newDoc.toString();
 		this.doc = newDoc;
+	},
+
+	onInput: function (event) {
+		this.updateState(event.currentTarget);
+
 		/*
 		var x = null;
 		var treeWalker = document.createTreeWalker(event.currentTarget, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, x, false);
