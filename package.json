@@ -1,0 +1,24 @@
+{
+  "name": "word",
+  "version": "0.0.0",
+  "description": "Words",
+  "main": "index.html",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/daviferreira/words"
+  },
+  "author": "Nate Mielnik",
+  "license": "ISC",
+  "dependencies": {
+    "diff": "1.4.0",
+    "connect": "^3.4.0",
+    "serve-static": "^1.10.0"
+  },
+  "bugs": {
+    "url": "https://github.com/daviferreira/words/issues"
+  },
+  "homepage": "http://github.com/daviferreira/words"
+}
