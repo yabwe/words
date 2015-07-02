@@ -12,9 +12,11 @@ var Util = {
 }
 
 
-var Document = function (root) {
+var Document = function () {
 	this.chars = [];
-	if (!root) {
+	this.blocks = [new Block(this)];
+
+	/*if (!root) {
 		this.blocks = [new Block(null, this)];
 	} else {
 		this.blocks = [];
@@ -23,7 +25,7 @@ var Document = function (root) {
 			this.chars = this.chars.concat(block.getChars());
 			this.blocks.push(block);
 		}, this);
-	}
+	}*/
 }
 
 Document.prototype = {
@@ -42,6 +44,10 @@ Document.prototype = {
 		}
 	},
 
+	toDebugString: function () {
+		return this.blocks.join('\r\n');
+	},
+
 	toString: function () {
 		return this.blocks.join('\r\n');
 	},
@@ -57,44 +63,10 @@ Document.prototype = {
 
 
 
-var Block = function (root, parent) {
+var Block = function (parent) {
 	this.parent = parent;
 
 	this.words = [];
-	if (!root) {
-		return;
-	}
-
-	var skipRoot = false;
-	if (Util.blockNames.indexOf(root.nodeName.toLowerCase()) !== -1) {
-		this.type = root.nodeName.toLowerCase();
-		skipRoot = true;
-	}
-	var x = null;
-	var treeWalker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, x, false);
-	while (treeWalker.nextNode()) {
-		var node = treeWalker.currentNode;
-		if (skipRoot && node === root) {
-			continue;
-		}
-		if (node.nodeType === 3) {
-			var parts = node.nodeValue.split(' ');
-			var preSpace = '';
-			parts.forEach(function (part) {
-				if (part === '') {
-					preSpace += ' ';
-				} else {
-					this.words.push(new Word(preSpace + part, this));
-					preSpace = '';
-				}
-			}, this);
-			if (preSpace != '') {
-				this.words.push(new Word(preSpace, this));
-			}
-		} else {
-			this.words.push(new Word('<' + node.nodeName + '>', this));
-		}
-	}
 }
 
 Block.prototype = {
@@ -112,6 +84,10 @@ Block.prototype = {
 	},
 
 	toString: function () {
+		return this.words.join(' ');
+	},
+
+	toDebugString: function () {
 		var str = '<' + this.type + '>';
 		if (!this.words.length) {
 			str += '<br/>';
@@ -166,6 +142,10 @@ Word.prototype = {
 		return this.chars.join('');
 	},
 
+	toDebugString: function () {
+		return this.chars.join('');
+	},
+
 	getChars: function () {
 		return this.chars;
 	},
@@ -198,7 +178,12 @@ var Char = function (char, parent) {
 }
 
 Char.prototype = {
+
 	toString: function () {
+		return this.char;
+	},
+
+	toDebugString: function () {
 		var str = this.char;
 		this.getProps().forEach(function (prop) {
 			str += '(' + prop + ')';
@@ -229,7 +214,7 @@ var Words = function (selector) {
 
 	Util.on(this.element, 'keyup', this.onInput.bind(this));
 
-	this.doc = new Document(this.element);
+	this.doc = new Document();
 
 	Array.prototype.slice.call(document.querySelectorAll('button')).forEach(function (button) {
 		Util.on(button, 'click', this.onToolbarButtonClick.bind(this));
@@ -237,6 +222,46 @@ var Words = function (selector) {
 }
 
 Words.prototype = {
+
+	createHTMLWordString: function (root) {
+		var skipRoot = false;
+		if (Util.blockNames.indexOf(root.nodeName.toLowerCase()) !== -1) {
+			//this.type = root.nodeName.toLowerCase();
+			skipRoot = true;
+		}
+		var x = null;
+		var treeWalker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, x, false);
+		var str = '';
+		while (treeWalker.nextNode()) {
+			var node = treeWalker.currentNode;
+			if (skipRoot && node === root) {
+				continue;
+			}
+			if (node.nodeType === 3) {
+				var parts = node.nodeValue.split(' ');
+				var preSpace = '';
+				parts.forEach(function (part) {
+					if (part === '') {
+						preSpace += ' ';
+					} else {
+						str += (preSpace + part);
+						//this.words.push(new Word(preSpace + part, this));
+						preSpace = '';
+					}
+				}, this);
+				if (preSpace != '') {
+					str += preSpace;
+					//this.words.push(new Word(preSpace, this));
+				}
+			} else {
+				//this.words.push(new Word('<' + node.nodeName + '>', this));
+				if (Util.blockNames.indexOf(node.nodeName.toLowerCase()) !== -1) {
+					str += '\n';
+				}
+			}
+		}
+		return str;
+	},
 
 	onToolbarButtonClick: function (event) {
 		var target = event.currentTarget;
@@ -258,10 +283,15 @@ Words.prototype = {
 	},
 
 	updateState: function (element) {
-		var newDoc = new Document(element);
-		document.getElementById('previous-state').value = this.doc.toString();
-		document.getElementById('new-state').value = newDoc.toString();
-		this.doc = newDoc;
+		//var newDoc = new Document(element);
+		var currStr = this.doc.toString();
+		var nextStr = element.textContent;
+		document.getElementById('previous-state').value = currStr;
+		//document.getElementById('new-state').value = newDoc.toString()
+		document.getElementById('new-state').value = nextStr;
+		//this.doc = newDoc;
+		var diff = JsDiff.diffChars(currStr, nextStr);
+		console.log(JSON.stringify(diff));
 	},
 
 	onInput: function (event) {
