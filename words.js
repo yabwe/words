@@ -58,6 +58,49 @@ Document.prototype = {
 			str += block.toHTML();
 		}, this);
 		return str;
+	},
+
+	insertCharsAfter: function (str, index) {
+		if (!str) {
+			return;
+		}
+
+		var newChars = [];
+		str.split('').forEach(function (part) {
+			newChars.push(new Char(part));
+		}, this);
+
+		this.chars.splice.apply(this.chars, [index, 0].concat(newChars));
+
+		/* Cases:
+		 *
+		 * a) Inserting at beginning
+		 *      - Create a new Word
+		 *      - Add newChars to Word and update parent references
+		 *		- Add word before new-line terminator Word
+		 *
+		 * b) Inserting at end
+		 * 		- Get next to last word
+		 *		- if next-to-last-word ends with [space]
+		 * 			- Create a new Word
+		 * 			- Add newChars to Word and update parent references
+		 * 			- Add word before new-line terminator Word
+		 *		- else
+		 * 			- Add newChars to next-to-last-word
+		 *
+		 * c) Inserting inside chars
+		 *		- prevChar = this.chars[index - 1]
+		 *		- nextChar = this.chars[index]
+		 * 		- if prevChar is [space]
+		 *			- targetWord = nextChar.parent
+		 *			- ref = null
+		 *		- else
+		 *			- targetWord = prevChar.parent
+		 *			- ref = prevChar
+		 *		- targetWord.insertAfter(newChars, ref)
+		 *		- ! NEED TO CHECK IF WE SHOULD SPLIT WORD NOW !
+		 *
+		 */
 	}
 }
 
@@ -66,7 +109,7 @@ Document.prototype = {
 var Block = function (parent) {
 	this.parent = parent;
 
-	this.words = [];
+	this.words = [new Word('\r\n', this)];
 }
 
 Block.prototype = {
@@ -106,6 +149,21 @@ Block.prototype = {
 			}
 		}, this);
 		return '<' + this.type + '>' + content + '</' + this.type + '>';
+	},
+
+	insertAfter: function (chars, refChar) {
+		if (!chars) {
+			return;
+		}
+
+		if (!refChar) {
+			this.chars = this.chars.concat(chars);
+		} else {
+			var target = this.chars.indexOf(refChar) + 1;
+			this.chars.splice.apply(this.chars, [target, 0].concat(chars));
+		}
+
+		// TODO: Check to see if we need to split word
 	}
 }
 
