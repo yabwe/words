@@ -15,17 +15,6 @@ var Util = {
 var Document = function () {
 	this.chars = [];
 	this.blocks = [new Block(this)];
-
-	/*if (!root) {
-		this.blocks = [new Block(null, this)];
-	} else {
-		this.blocks = [];
-		Array.prototype.slice.call(root.childNodes).forEach(function (element) {
-			var block = new Block(element, this);
-			this.chars = this.chars.concat(block.getChars());
-			this.blocks.push(block);
-		}, this);
-	}*/
 }
 
 Document.prototype = {
@@ -42,22 +31,6 @@ Document.prototype = {
 				}
 			}
 		}
-	},
-
-	toDebugString: function () {
-		return this.blocks.join('\r\n');
-	},
-
-	toString: function () {
-		return this.blocks.join('\r\n');
-	},
-
-	toHTML: function () {
-		var str = '';
-		this.blocks.forEach(function (block) {
-			str += block.toHTML();
-		}, this);
-		return str;
 	},
 
 	insertCharsAfter: function (str, index) {
@@ -101,6 +74,30 @@ Document.prototype = {
 		 *		- ! NEED TO CHECK IF WE SHOULD SPLIT WORD NOW !
 		 *
 		 */
+	},
+
+	removeCharsAt: function (index, count) {
+		if (!this.chars[index]) {
+			return;
+		}
+
+		// Man, how do we remove stuff?
+	},
+
+	toDebugString: function () {
+		return this.blocks.join('\r\n');
+	},
+
+	toString: function () {
+		return this.blocks.join('\r\n');
+	},
+
+	toHTML: function () {
+		var str = '';
+		this.blocks.forEach(function (block) {
+			str += block.toHTML();
+		}, this);
+		return str;
 	}
 }
 
@@ -126,6 +123,20 @@ Block.prototype = {
 		return chars;
 	},
 
+	insertAfter: function (word, refWord) {
+		if (!word) {
+			return;
+		}
+
+		var targetIndex = this.words.indexOf(refWord);
+		// Inserting at the end means inserting before the ending
+		// new-line terminator word (which would be -1 for splice)
+		//
+		// Coincidentally, indexOf() returns -1 if it can't find
+		// the ref. So, we can just use targetIndex for splice()
+		this.words.splice(targetIndex, 0, word);
+	},
+
 	toString: function () {
 		return this.words.join(' ');
 	},
@@ -149,21 +160,6 @@ Block.prototype = {
 			}
 		}, this);
 		return '<' + this.type + '>' + content + '</' + this.type + '>';
-	},
-
-	insertAfter: function (chars, refChar) {
-		if (!chars) {
-			return;
-		}
-
-		if (!refChar) {
-			this.chars = this.chars.concat(chars);
-		} else {
-			var target = this.chars.indexOf(refChar) + 1;
-			this.chars.splice.apply(this.chars, [target, 0].concat(chars));
-		}
-
-		// TODO: Check to see if we need to split word
 	}
 }
 
@@ -194,6 +190,21 @@ Word.prototype = {
 				next.props[prop] = false;
 			});
 		}
+	},
+
+	insertAfter: function (chars, refChar) {
+		if (!chars) {
+			return;
+		}
+
+		if (!refChar) {
+			this.chars = this.chars.concat(chars);
+		} else {
+			var target = this.chars.indexOf(refChar) + 1;
+			this.chars.splice.apply(this.chars, [target, 0].concat(chars));
+		}
+
+		// TODO: Check to see if we need to split word
 	},
 
 	toString: function () {
@@ -343,13 +354,18 @@ Words.prototype = {
 	updateState: function (element) {
 		//var newDoc = new Document(element);
 		var currStr = this.doc.toString();
-		var nextStr = element.textContent;
+		var nextStr = this.createHTMLWordString(element);
 		document.getElementById('previous-state').value = currStr;
 		//document.getElementById('new-state').value = newDoc.toString()
 		document.getElementById('new-state').value = nextStr;
 		//this.doc = newDoc;
 		var diff = JsDiff.diffChars(currStr, nextStr);
 		console.log(JSON.stringify(diff));
+
+		/* Here we should loop through the diff and
+		 * call this.doc.insertCharsAfter() for additions
+		 * and this.doc.removeCharsAt() for deletions
+		 */
 	},
 
 	onInput: function (event) {
