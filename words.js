@@ -15,6 +15,7 @@ var Util = {
 var Document = function () {
 	this.chars = [];
 	this.blocks = [new Block(this)];
+	this.chars = this.chars.concat(this.blocks[0].getChars());
 }
 
 Document.prototype = {
@@ -33,15 +34,41 @@ Document.prototype = {
 		}
 	},
 
-	insertCharsAfter: function (str, index) {
+	insertCharsAt: function (str, index) {
 		if (!str) {
 			return;
 		}
 
-		var newChars = [];
+		var newChars = [],
+			nextChar = this.chars[index],
+			nextWord,
+			prevChar = this.chars[index - 1],
+			prevWord;
 		str.split('').forEach(function (part) {
 			newChars.push(new Char(part));
 		}, this);
+
+		if (nextChar) {
+			nextWord = nextChar.parent;
+		}
+		if (prevChar) {
+			prevWord = prevChar.parent;
+		}
+
+		if (nextWord === prevWord || !prevWord) {
+			nextWord.insertBefore(nextChar, newChars);
+		} else {
+			if (prevChar.char === ' ') {
+				if (nextWord) {
+					nextWord.insertBefore(null, newChars);
+				} else {
+					var newWord = new Word(newChars);
+					prevWord.parent.insertAfter(prevWord, newWord);
+				}
+			} else {
+				prevWord.insertAfter(prevChar, newChars);
+			}
+		}
 
 		this.chars.splice.apply(this.chars, [index, 0].concat(newChars));
 
@@ -80,6 +107,10 @@ Document.prototype = {
 		if (!this.chars[index]) {
 			return;
 		}
+
+		var removedChars = this.chars.splice(index, count);
+
+		removedChars[0].parent.removeChars(removedChars);
 
 		// Man, how do we remove stuff?
 	},
@@ -123,22 +154,42 @@ Block.prototype = {
 		return chars;
 	},
 
-	insertAfter: function (word, refWord) {
+	insertAfter: function (refWord, word) {
 		if (!word) {
 			return;
 		}
 
+		word.parent = this;
+
 		var targetIndex = this.words.indexOf(refWord);
+		if (targetIndex !== -1) {
+			targetIndex += 1;
+		}
 		// Inserting at the end means inserting before the ending
 		// new-line terminator word (which would be -1 for splice)
 		//
 		// Coincidentally, indexOf() returns -1 if it can't find
 		// the ref. So, we can just use targetIndex for splice()
 		this.words.splice(targetIndex, 0, word);
+
+		word.checkForSpaces();
+	},
+
+	insertBefore: function (refWord, word) {
+		if (!word) {
+			return;
+		}
+
+		word.parent = this;
+
+		var targetIndex = this.word.indexOf(refWord);
+		this.words.splice(targetIndex, 0, word);
+
+		word.checkForSpaces();
 	},
 
 	toString: function () {
-		return this.words.join(' ');
+		return this.words.join('');
 	},
 
 	toDebugString: function () {
@@ -167,11 +218,20 @@ Block.prototype = {
 var Word = function (text, parent) {
 	this.parent = parent;
 
-	this.chars = [];
-	var chars = (text) ? Array.prototype.slice.call(text) : [];
-	chars.forEach(function (char) {
-		this.chars.push(new Char(char, this));
-	}, this);
+	if (!text) {
+		this.chars = [];
+	} else if (typeof text === 'string') {
+		this.chars = [];
+		var chars = (text) ? Array.prototype.slice.call(text) : [];
+		chars.forEach(function (char) {
+			this.chars.push(new Char(char, this));
+		}, this);
+	} else {
+		this.chars = text;
+		this.chars.forEach(function (char) {
+			char.parent = this;
+		}, this);
+	}
 }
 
 Word.prototype = {
@@ -192,19 +252,95 @@ Word.prototype = {
 		}
 	},
 
-	insertAfter: function (chars, refChar) {
+	checkForSpaces: function () {
+		var currentChars = [],
+			finalChars,
+			newWords = [];
+
+		this.chars.forEach(function (char) {
+			currentChars.push(char);
+			if (char.char === ' ') {
+				if (!finalChars) {
+					finalChars = currentChars;
+				} else {
+					newWords.push(new Word(currentChars));
+				}
+				currentChars = [];
+			}
+		}, this);
+
+		if (!finalChars) {
+			this.chars = currentChars;
+		} else {
+			this.chars = finalChars;
+			if (currentChars.length && finalChars !== currentChars) {
+				newWords.push(new Word(currentChars));
+			}
+			var prevWord = this;
+			newWords.forEach(function (word) {
+				prevWord.parent.insertAfter(prevWord, word);
+				prevWord = word;
+			}, this);
+		}
+	},
+
+	insertAfter: function (refChar, chars) {
 		if (!chars) {
 			return;
 		}
 
+		chars.forEach(function (char) {
+			char.parent = this;
+		}, this);
+
 		if (!refChar) {
 			this.chars = this.chars.concat(chars);
 		} else {
-			var target = this.chars.indexOf(refChar) + 1;
+			var target = this.chars.indexOf(refChar);
+			if (target === -1) {
+				target = this.chars.length;
+			} else {
+				target = target + 1;
+			}
 			this.chars.splice.apply(this.chars, [target, 0].concat(chars));
 		}
 
-		// TODO: Check to see if we need to split word
+		this.checkForSpaces();
+	},
+
+	insertBefore: function (refChar, chars) {
+		if (!chars) {
+			return;
+		}
+
+		chars.forEach(function (char) {
+			char.parent = this;
+		}, this);
+
+		if (!refChar) {
+			this.chars = chars.concat(this.chars);
+		} else {
+			var target = this.chars.indexOf(refChar);
+			if (target == -1) {
+				target = 0;
+			}
+			this.chars.splice.apply(this.chars, [target, 0].concat(chars));
+		}
+
+		this.checkForSpaces();
+	},
+
+	removeChars: function (chars) {
+		if (!chars || !chars.length) {
+			return;
+		}
+
+		chars.forEach(function (char) {
+			var index = this.chars.indexOf(char);
+			if (index !== -1) {
+				this.chars.splice(index, 1);
+			}
+		}, this);
 	},
 
 	toString: function () {
@@ -307,7 +443,7 @@ Words.prototype = {
 				continue;
 			}
 			if (node.nodeType === 3) {
-				var parts = node.nodeValue.split(' ');
+				/*var parts = node.nodeValue.split(' ');
 				var preSpace = '';
 				parts.forEach(function (part) {
 					if (part === '') {
@@ -321,11 +457,12 @@ Words.prototype = {
 				if (preSpace != '') {
 					str += preSpace;
 					//this.words.push(new Word(preSpace, this));
-				}
+				}*/
+				str += node.nodeValue;
 			} else {
 				//this.words.push(new Word('<' + node.nodeName + '>', this));
 				if (Util.blockNames.indexOf(node.nodeName.toLowerCase()) !== -1) {
-					str += '\n';
+					str += '\r\n';
 				}
 			}
 		}
@@ -353,17 +490,30 @@ Words.prototype = {
 
 	updateState: function (element) {
 		//var newDoc = new Document(element);
-		var currStr = this.doc.toString();
 		var nextStr = this.createHTMLWordString(element);
+		var currStr = this.doc.toString();
 		document.getElementById('previous-state').value = currStr;
 		//document.getElementById('new-state').value = newDoc.toString()
-		document.getElementById('new-state').value = nextStr;
+		//document.getElementById('new-state').value = nextStr;
 		//this.doc = newDoc;
 		var diff = JsDiff.diffChars(currStr, nextStr);
-		console.log(JSON.stringify(diff));
+		var index = 0;
+		diff.forEach(function (action) {
+			if (action.removed) {
+				this.doc.removeCharsAt(index, action.count);
+			} else {
+				if (action.added) {
+					this.doc.insertCharsAt(action.value, index);
+				}
+				index += action.count;
+			}
+		}, this);
+		var updatedStr = this.doc.toString();
+		document.getElementById('new-state').value = updatedStr;
+
 
 		/* Here we should loop through the diff and
-		 * call this.doc.insertCharsAfter() for additions
+		 * call this.doc.insertCharsAt() for additions
 		 * and this.doc.removeCharsAt() for deletions
 		 */
 	},
