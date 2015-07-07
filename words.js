@@ -12,10 +12,14 @@ var Util = {
 }
 
 
-var Document = function () {
+var Document = function (text) {
 	this.chars = [];
 	this.blocks = [new Block(this)];
 	this.chars = this.chars.concat(this.blocks[0].getChars());
+
+	if (text) {
+		this.insertCharsAt(0, text);
+	}
 }
 
 Document.prototype = {
@@ -34,7 +38,7 @@ Document.prototype = {
 		}
 	},
 
-	insertCharsAt: function (str, index) {
+	insertCharsAt: function (index, str) {
 		if (!str) {
 			return;
 		}
@@ -71,36 +75,6 @@ Document.prototype = {
 		}
 
 		this.chars.splice.apply(this.chars, [index, 0].concat(newChars));
-
-		/* Cases:
-		 *
-		 * a) Inserting at beginning
-		 *      - Create a new Word
-		 *      - Add newChars to Word and update parent references
-		 *		- Add word before new-line terminator Word
-		 *
-		 * b) Inserting at end
-		 * 		- Get next to last word
-		 *		- if next-to-last-word ends with [space]
-		 * 			- Create a new Word
-		 * 			- Add newChars to Word and update parent references
-		 * 			- Add word before new-line terminator Word
-		 *		- else
-		 * 			- Add newChars to next-to-last-word
-		 *
-		 * c) Inserting inside chars
-		 *		- prevChar = this.chars[index - 1]
-		 *		- nextChar = this.chars[index]
-		 * 		- if prevChar is [space]
-		 *			- targetWord = nextChar.parent
-		 *			- ref = null
-		 *		- else
-		 *			- targetWord = prevChar.parent
-		 *			- ref = prevChar
-		 *		- targetWord.insertAfter(newChars, ref)
-		 *		- ! NEED TO CHECK IF WE SHOULD SPLIT WORD NOW !
-		 *
-		 */
 	},
 
 	removeCharsAt: function (index, count) {
@@ -111,8 +85,6 @@ Document.prototype = {
 		var removedChars = this.chars.splice(index, count);
 
 		removedChars[0].parent.removeChars(removedChars);
-
-		// Man, how do we remove stuff?
 	},
 
 	toDebugString: function () {
@@ -415,11 +387,10 @@ Char.prototype = {
 var Words = function (selector) {
 	this.element = document.querySelector(selector);
 	this.element.setAttribute('contenteditable', true);
-	this.element.innerHTML = '<p><br/></p>';
 
 	Util.on(this.element, 'keyup', this.onInput.bind(this));
 
-	this.doc = new Document();
+	this.doc = new Document(this.createHTMLWordString(this.element));
 
 	Array.prototype.slice.call(document.querySelectorAll('button')).forEach(function (button) {
 		Util.on(button, 'click', this.onToolbarButtonClick.bind(this));
@@ -431,7 +402,6 @@ Words.prototype = {
 	createHTMLWordString: function (root) {
 		var skipRoot = false;
 		if (Util.blockNames.indexOf(root.nodeName.toLowerCase()) !== -1) {
-			//this.type = root.nodeName.toLowerCase();
 			skipRoot = true;
 		}
 		var x = null;
@@ -443,25 +413,9 @@ Words.prototype = {
 				continue;
 			}
 			if (node.nodeType === 3) {
-				/*var parts = node.nodeValue.split(' ');
-				var preSpace = '';
-				parts.forEach(function (part) {
-					if (part === '') {
-						preSpace += ' ';
-					} else {
-						str += (preSpace + part);
-						//this.words.push(new Word(preSpace + part, this));
-						preSpace = '';
-					}
-				}, this);
-				if (preSpace != '') {
-					str += preSpace;
-					//this.words.push(new Word(preSpace, this));
-				}*/
 				str += node.nodeValue;
 			} else {
-				//this.words.push(new Word('<' + node.nodeName + '>', this));
-				if (Util.blockNames.indexOf(node.nodeName.toLowerCase()) !== -1) {
+				if (str !== '' && Util.blockNames.indexOf(node.nodeName.toLowerCase()) !== -1) {
 					str += '\r\n';
 				}
 			}
@@ -489,13 +443,9 @@ Words.prototype = {
 	},
 
 	updateState: function (element) {
-		//var newDoc = new Document(element);
 		var nextStr = this.createHTMLWordString(element);
 		var currStr = this.doc.toString();
 		document.getElementById('previous-state').value = currStr;
-		//document.getElementById('new-state').value = newDoc.toString()
-		//document.getElementById('new-state').value = nextStr;
-		//this.doc = newDoc;
 		var diff = JsDiff.diffChars(currStr, nextStr);
 		var index = 0;
 		diff.forEach(function (action) {
@@ -503,19 +453,13 @@ Words.prototype = {
 				this.doc.removeCharsAt(index, action.count);
 			} else {
 				if (action.added) {
-					this.doc.insertCharsAt(action.value, index);
+					this.doc.insertCharsAt(index, action.value);
 				}
 				index += action.count;
 			}
 		}, this);
 		var updatedStr = this.doc.toString();
 		document.getElementById('new-state').value = updatedStr;
-
-
-		/* Here we should loop through the diff and
-		 * call this.doc.insertCharsAt() for additions
-		 * and this.doc.removeCharsAt() for deletions
-		 */
 	},
 
 	onInput: function (event) {
