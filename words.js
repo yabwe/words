@@ -14,7 +14,7 @@ var Util = {
 
 var Document = function (text) {
 	this.chars = [];
-	this.blocks = [new Block(this)];
+	this.blocks = [new Block(null, this)];
 	this.chars = this.chars.concat(this.blocks[0].getChars());
 
 	if (text) {
@@ -87,12 +87,29 @@ Document.prototype = {
 		removedChars[0].parent.removeChars(removedChars);
 	},
 
+	insertAfter: function (refBlock, block) {
+		if (!block) {
+			return;
+		}
+
+		block.parent = this;
+
+		var targetIndex = this.blocks.indexOf(refBlock);
+		if (targetIndex === -1) {
+			targetIndex = this.blocks.length;
+		} else {
+			targetIndex += 1;
+		}
+
+		this.blocks.splice(targetIndex, 0, block);
+	},
+
 	toDebugString: function () {
 		return this.blocks.join('\r\n');
 	},
 
 	toString: function () {
-		return this.blocks.join('\r\n');
+		return this.blocks.join('');
 	},
 
 	toHTML: function () {
@@ -106,10 +123,17 @@ Document.prototype = {
 
 
 
-var Block = function (parent) {
+var Block = function (words, parent) {
 	this.parent = parent;
 
-	this.words = [new Word('\r\n', this)];
+	if (!words || !words.length) {
+		this.words = [new Word('', this)];
+	} else {
+		this.words = words;
+		this.words.forEach(function (word) {
+			word.parent = this;
+		}, this);
+	}
 }
 
 Block.prototype = {
@@ -134,9 +158,12 @@ Block.prototype = {
 		word.parent = this;
 
 		var targetIndex = this.words.indexOf(refWord);
-		if (targetIndex !== -1) {
+		if (targetIndex === -1) {
+			targetIndex = this.words.length;
+		} else {
 			targetIndex += 1;
 		}
+
 		// Inserting at the end means inserting before the ending
 		// new-line terminator word (which would be -1 for splice)
 		//
@@ -190,11 +217,11 @@ Block.prototype = {
 var Word = function (text, parent) {
 	this.parent = parent;
 
-	if (!text) {
+	if (!text && text !== '') {
 		this.chars = [];
 	} else if (typeof text === 'string') {
 		this.chars = [];
-		var chars = (text) ? Array.prototype.slice.call(text) : [];
+		var chars = (text) ? Array.prototype.slice.call(text) : [''];
 		chars.forEach(function (char) {
 			this.chars.push(new Char(char, this));
 		}, this);
@@ -226,33 +253,77 @@ Word.prototype = {
 
 	checkForSpaces: function () {
 		var currentChars = [],
-			finalChars,
-			newWords = [];
+			thisBlockWords = [],
+			thisWordChars,
+			newBlocks = [],
+			nextBlock;
 
 		this.chars.forEach(function (char) {
 			currentChars.push(char);
-			if (char.char === ' ') {
-				if (!finalChars) {
-					finalChars = currentChars;
+			// We hit something which will end a word and could end a block
+			if (char.char === ' ' || char.char === '\r\n' || char.char === '\n') {
+				// If we aren't adding to a newWord, that means we're still in the original
+				if (!thisWordChars) {
+					thisWordChars = currentChars;
 				} else {
-					newWords.push(new Word(currentChars));
+					// Add the newChars to a new word
+					if (!nextBlock) {
+						thisBlockWords.push(new Word(currentChars));
+					} else {
+						nextBlock.push(new Word(currentChars));
+					}
 				}
 				currentChars = [];
+
+				// If we hit a newline, we need to start a new block
+				if (char.char !== ' ') {
+					if (nextBlock) {
+						newBlocks.push(nextBlock);
+					}
+					nextBlock = [];
+				}
 			}
 		}, this);
 
-		if (!finalChars) {
-			this.chars = currentChars;
-		} else {
-			this.chars = finalChars;
-			if (currentChars.length && finalChars !== currentChars) {
-				newWords.push(new Word(currentChars));
+		// If we never hit a space, do nothing
+		if (!thisWordChars) {
+			return;
+		}
+
+		// Update our list of chars
+		this.chars = thisWordChars;
+
+		// If we have any lingering chars, make sure they get added into a word or block
+		if (currentChars.length) {
+			if (!nextBlock) {
+				thisBlockWords.push(new Word(currentChars));
+			} else {
+				nextBlock.push(new Word(currentChars));
 			}
+		}
+
+		// If we have any lingering blocks, make sure they get added into the blocks list
+		if (nextBlock && nextBlock.length) {
+			newBlocks.push(nextBlock);
+		}
+
+		// First, let's add any new words to this block
+		if (thisBlockWords.length) {
 			var prevWord = this;
-			newWords.forEach(function (word) {
+			thisBlockWords.forEach(function (word) {
 				prevWord.parent.insertAfter(prevWord, word);
 				prevWord = word;
-			}, this);
+			});
+		}
+
+		// Now, let's start creating blocks
+		if (newBlocks.length) {
+			var prevBlock = this.parent;
+			newBlocks.forEach(function (words) {
+				var block = new Block(words);
+				prevBlock.parent.insertAfter(prevBlock, block);
+				prevBlock = block;
+			});
 		}
 	},
 
@@ -455,7 +526,7 @@ Words.prototype = {
 				if (action.added) {
 					this.doc.insertCharsAt(index, action.value);
 				}
-				index += action.count;
+				index += action.value.length;
 			}
 		}, this);
 		var updatedStr = this.doc.toString();
