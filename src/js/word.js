@@ -168,6 +168,18 @@ Word.prototype = {
 		return this.chars.join('');
 	},
 
+	toJSON: function (id) {
+		var json = {
+			id: 'w' + id,
+			name: 'w',
+			children: []
+		};
+		this.chars.forEach(function (char, index) {
+			json.children.push(char.toJSON(id + '-' + index));
+		});
+		return json;
+	},
+
 	toDebugString: function () {
 		return this.chars.join('');
 	},

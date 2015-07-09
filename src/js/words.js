@@ -9,6 +9,9 @@ var Words = function (selector) {
 	Array.prototype.slice.call(document.querySelectorAll('button')).forEach(function (button) {
 		Util.on(button, 'click', this.onToolbarButtonClick.bind(this));
 	}, this);
+
+	this.treeUx = new TreeUX('tree-ux');
+	this.updateState(this.element);
 }
 
 Words.prototype = {
@@ -59,7 +62,7 @@ Words.prototype = {
 	updateState: function (element) {
 		var nextStr = this.createHTMLWordString(element);
 		var currStr = this.doc.toString();
-		document.getElementById('previous-state').value = currStr;
+		//document.getElementById('previous-state').value = currStr;
 		var diff = JsDiff.diffChars(currStr, nextStr);
 		var index = 0;
 		diff.forEach(function (action) {
@@ -72,8 +75,11 @@ Words.prototype = {
 				index += action.value.length;
 			}
 		}, this);
-		var updatedStr = this.doc.toString();
-		document.getElementById('new-state').value = updatedStr;
+		var js = this.doc.toJSON();
+		this.treeUx.update(js);
+		
+		//var updatedStr = this.doc.toString();
+		//document.getElementById('new-state').value = updatedStr;
 	},
 
 	onInput: function (event) {

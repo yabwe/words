@@ -5,6 +5,8 @@
     <title>words | demo</title>
     <link rel="stylesheet" href="style.css">
     <script src="node_modules/diff/diff.js"></script>
+    <script src="jit/jit.js"></script>
+    <script src="src/js/tree-ux.js"></script>
     <script src="src/js/util.js"></script>
     <script src="src/js/document.js"></script>
     <script src="src/js/block.js"></script>
@@ -33,14 +35,16 @@
             <button data-action="removeFormat">RESET</button>
         </div>
         <div class="editable"><p>Edit Text Here</p></div>
-        <div>
+        <!--<div>
             <h3 style="width: 400px; display: inline-block;">Current State</h3>
             <h3 style="width: 400px; display: inline-block;">Previous State</h3>
         <div>
         <div>
             <textarea id="new-state" style="height: 300px; width: 400px;"></textarea>
             <textarea id="previous-state" style="height: 300px; width: 400px;"></textarea>
-        </div>
+        </div>-->
+        <div id="tree-ux"></div>
+        <div id="log"></div>
     </div>
     <script>
         var editor = new Words('.editable');

@@ -96,6 +96,18 @@ Document.prototype = {
 		return this.blocks.join('\r\n');
 	},
 
+	toJSON: function () {
+		var json = {
+			id: 'doc',
+			name: 'd',
+			children: []
+		}
+		this.blocks.forEach(function (block, index) {
+			json.children.push(block.toJSON(index));
+		});
+		return json;
+	},
+
 	toString: function () {
 		return this.blocks.join('');
 	},

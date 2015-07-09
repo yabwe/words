@@ -11,6 +11,14 @@ Char.prototype = {
 		return this.char;
 	},
 
+	toJSON: function (id) {
+		return {
+			id: 'c' + id,
+			name: (this.char === ' ') ? '[ ]' : (this.char === '\r\n' || this.char === '\n' ? '\\n' : this.char),
+			children: []
+		};
+	},
+
 	toDebugString: function () {
 		var str = this.char;
 		this.getProps().forEach(function (prop) {

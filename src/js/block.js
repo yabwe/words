@@ -66,6 +66,18 @@ Block.prototype = {
 		return this.words.join('');
 	},
 
+	toJSON: function (id) {
+		var json = {
+			id: 'b' + id,
+			name: 'B',
+			children: []
+		};
+		this.words.forEach(function (word, index) {
+			json.children.push(word.toJSON(id + '-' + index));
+		});
+		return json;
+	},
+
 	toDebugString: function () {
 		var str = '<' + this.type + '>';
 		if (!this.words.length) {
