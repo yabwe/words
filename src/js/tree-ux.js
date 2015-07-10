@@ -5,7 +5,7 @@ var labelType, useGradients, nativeTextSupport, animate;
       iStuff = ua.match(/iPhone/i) || ua.match(/iPad/i),
       typeOfCanvas = typeof HTMLCanvasElement,
       nativeCanvasSupport = (typeOfCanvas == 'object' || typeOfCanvas == 'function'),
-      textSupport = nativeCanvasSupport 
+      textSupport = nativeCanvasSupport
         && (typeof document.createElement('canvas').getContext('2d').fillText == 'function');
   //I'm setting this based on the fact that ExCanvas provides text support for IE
   //and that as of today iPhone/iPad current text support is lame
@@ -18,7 +18,7 @@ var labelType, useGradients, nativeTextSupport, animate;
 var Log = {
   elem: false,
   write: function(text){
-    if (!this.elem) 
+    if (!this.elem)
       this.elem = document.getElementById('log');
     this.elem.innerHTML = text;
     this.elem.style.left = (500 - this.elem.offsetWidth / 2) + 'px';
@@ -38,7 +38,7 @@ var TreeUX = function (elementId) {
         transition: $jit.Trans.Quart.easeInOut,
         duration: 1,
         //set distance between node and its children
-        levelDistance: 30,
+        levelDistance: 40,
         offsetY: 110,
         constrained: false,
         //enable panning
@@ -50,32 +50,32 @@ var TreeUX = function (elementId) {
         //set overridable=true for styling individual
         //nodes or edges
         Node: {
-            height: 10,
-            width: 30,
+            height: 20,
+            width: 15,
             type: 'rectangle',
             color:'#23A4FF',
             align:"center",
             overridable: true
         },
-        
+
         Edge: {
             type: 'bezier',
             overridable: true
         },
-        
+
         onBeforeCompute: function(node){
             Log.write("loading " + node.name);
         },
-        
+
         onAfterCompute: function(){
             Log.write("done");
         },
-        
+
         //This method is called on DOM label creation.
         //Use this method to add event handlers and styles to
         //your node.
         onCreateLabel: function(label, node){
-            label.id = node.id;            
+            label.id = node.id;
             label.innerHTML = node.name;
             label.onclick = function(){
                 self.st.onClick(node.id);
@@ -85,12 +85,12 @@ var TreeUX = function (elementId) {
             style.cursor = 'pointer';
             style.color = '#000';
             style.fontWeight = 'bold'
-            style.fontSize = '10px';
-            style.lineHeight = 10 + 'px';
+            style.fontSize = '12px';
+            style.lineHeight = 20 + 'px';
             style.textAlign= 'center';
-            style.paddingLeft = '10px';
+            style.paddingLeft = '2px';
         },
-        
+
         //This method is called right before plotting
         //a node. It's useful for changing an individual node
         //style properties before plotting it.
@@ -111,11 +111,11 @@ var TreeUX = function (elementId) {
                     node.eachSubnode(function(n) { count++; });
                     //assign a node color based on
                     //how many children it has
-                    node.data.$color = ['#aaa', '#baa', '#caa', '#daa', '#eaa', '#faa'][count];                    
+                    node.data.$color = ['#aaa', '#baa', '#caa', '#daa', '#eaa', '#faa'][count];
                 }
             }
         },
-        
+
         //This method is called right before plotting
         //an edge. It's useful for changing an individual edge
         //style properties before plotting it.
