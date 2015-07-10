@@ -37,8 +37,6 @@ var TreeUX = function (elementId) {
         //set animation transition type
         transition: $jit.Trans.Quart.easeInOut,
         duration: 1,
-        //clearCanvas: true,
-        //transition: null,
         //set distance between node and its children
         levelDistance: 30,
         offsetY: 110,
@@ -55,7 +53,6 @@ var TreeUX = function (elementId) {
             height: 10,
             width: 30,
             type: 'rectangle',
-            //autoWidth: true,
             color:'#23A4FF',
             align:"center",
             overridable: true
@@ -85,9 +82,6 @@ var TreeUX = function (elementId) {
             };
             //set label styles
             var style = label.style;
-            //style.display = 'inline-block';
-            //style.width = 30 + 'px';
-            //style.height = 10 + 'px';            
             style.cursor = 'pointer';
             style.color = '#000';
             style.fontWeight = 'bold'
@@ -95,9 +89,6 @@ var TreeUX = function (elementId) {
             style.lineHeight = 10 + 'px';
             style.textAlign= 'center';
             style.paddingLeft = '10px';
-            //style.paddingTop = '-30px';
-            //style.paddingBottom = '20px';
-            //style.paddingTop = '-10px';
         },
         
         //This method is called right before plotting
@@ -155,8 +146,7 @@ TreeUX.prototype = {
         //emulate a click on the root node.
         setTimeout(function () {
             this.st.onClick(this.st.root);
-        }.bind(this), 2)
-        //this.st.onClick(this.st.root);
+        }.bind(this), 5)
     },
 
     sampleJSON: function () {

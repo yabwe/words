@@ -62,7 +62,6 @@ Words.prototype = {
 	updateState: function (element) {
 		var nextStr = this.createHTMLWordString(element);
 		var currStr = this.doc.toString();
-		//document.getElementById('previous-state').value = currStr;
 		var diff = JsDiff.diffChars(currStr, nextStr);
 		var index = 0;
 		diff.forEach(function (action) {
@@ -77,9 +76,6 @@ Words.prototype = {
 		}, this);
 		var js = this.doc.toJSON();
 		this.treeUx.update(js);
-		
-		//var updatedStr = this.doc.toString();
-		//document.getElementById('new-state').value = updatedStr;
 	},
 
 	onInput: function (event) {
