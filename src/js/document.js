@@ -1,7 +1,9 @@
 var Document = function (text) {
 	this.chars = [];
 	this.blocks = [new Block(null, this)];
-	this.chars = this.chars.concat(this.blocks[0].getChars());
+	this.chars = this.blocks.reduce(function (prev, curr) {
+		return prev.concat(curr.getChars());
+	}, []);
 	//this.head = this.chars[0];
 	this.tail = this.chars[0];
 
@@ -108,7 +110,7 @@ Document.prototype = {
 	},
 
 	toDebugString: function () {
-		return this.blocks.join('\n');
+		return this.blocks.join(Util.Char.NEW_LINE);
 	},
 
 	toJSON: function () {

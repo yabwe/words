@@ -10,12 +10,21 @@ var Util = {
 
 	'dt', 'li', 'tbody', 'td', 'th', 'thead', 'tr'],
 
+	CharCode: {
+		NEW_LINE: 10,
+		CARRIAGE_RETURN: 13,
+		SPACE: 32,
+		NBSP: 160
+	},
+
+	Char: {},
+
 	isNewLine: function (str) {
-		return str === '\n';
+		return !!(str && str.charCodeAt(0) === this.CharCode.NEW_LINE);
 	},
 
 	isSpace: function (str) {
-		return !!(str.match(/^\s+$/));
+		return !!(str && str.match(/^\s+$/) && !this.isNewLine(str));
 	},
 
 	on: function (target, event, listener, useCapture) {
@@ -39,11 +48,11 @@ var Util = {
 				str += node.nodeValue;
 			} else {
 				if (this.blockNames.indexOf(node.nodeName.toLowerCase()) !== -1) {
-					str += '\n';
+					str += this.Char.NEW_LINE;
 				}
 			}
 		}
-		return str;
+		return str.replace(new RegExp(this.Char.NBSP, 'g'), ' ');
 	},
 
 	exportSelection: function (root) {
@@ -117,3 +126,7 @@ var Util = {
         sel.addRange(range);
     }
 }
+
+Object.keys(Util.CharCode).forEach(function (name) {
+	Util.Char[name] = String.fromCharCode(Util.CharCode[name]);
+});

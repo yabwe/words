@@ -16,14 +16,9 @@ Block.prototype = {
 	type: 'p',
 
 	getChars: function () {
-		var chars = [];
-		this.words.forEach(function (word, index) {
-			chars = chars.concat(word.getChars());
-			if (index !== (this.words.length - 1)) {
-				chars.push(' ');
-			}
-		}, this);
-		return chars;
+		return this.words.reduce(function (prev, curr) {
+			return prev.concat(curr.getChars());
+		}, []);
 	},
 
 	insertAfter: function (refWord, word) {
@@ -88,7 +83,7 @@ Block.prototype = {
 		if (!this.words.length) {
 			str += '<br/>';
 		} else {
-			str += this.words.join(' ');
+			str += this.words.join(Util.Char.SPACE);
 		}
 		return str + '</' + this.type + '>';
 	},
@@ -98,7 +93,7 @@ Block.prototype = {
 		this.words.forEach(function (word, index) {
 			content += word.toHTML();
 			if (index !== (this.words.length - 1)) {
-				content += ' ';
+				content += Util.Char.SPACE;
 			}
 		}, this);
 		return '<' + this.type + '>' + content + '</' + this.type + '>';

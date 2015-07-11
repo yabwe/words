@@ -87,7 +87,7 @@ Word.prototype = {
 		}
 
 		// If we have any lingering blocks, make sure they get added into the blocks list
-		if (nextBlock && nextBlock.length) {
+		if (nextBlock) {
 			newBlocks.push(nextBlock);
 		}
 
