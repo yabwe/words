@@ -6,6 +6,14 @@ var Util = {
 
 	'dt', 'li', 'tbody', 'td', 'th', 'thead', 'tr'],
 
+	isNewLine: function (str) {
+		return !!str.match(/(\r\n|\n)/);
+	},
+
+	isSpace: function (str) {
+		return !!(str.match(/^\s+$/) && str !== '\r');
+	},
+
 	on: function (target, event, listener, useCapture) {
 		target.addEventListener(event, listener, useCapture);
 	}

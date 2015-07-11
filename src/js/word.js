@@ -45,7 +45,7 @@ Word.prototype = {
 		this.chars.forEach(function (char) {
 			currentChars.push(char);
 			// We hit something which will end a word and could end a block
-			if (char.char === ' ' || char.char === '\r\n' || char.char === '\n') {
+			if (Util.isNewLine(char.char) || Util.isSpace(char.char)) {
 				// If we aren't adding to a newWord, that means we're still in the original
 				if (!thisWordChars) {
 					thisWordChars = currentChars;
@@ -60,7 +60,7 @@ Word.prototype = {
 				currentChars = [];
 
 				// If we hit a newline, we need to start a new block
-				if (char.char !== ' ') {
+				if (!Util.isSpace(char.char)) {
 					if (nextBlock) {
 						newBlocks.push(nextBlock);
 					}

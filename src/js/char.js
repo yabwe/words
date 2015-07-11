@@ -12,9 +12,17 @@ Char.prototype = {
 	},
 
 	toJSON: function (id) {
+		var name = this.char;
+		if (this.char.match('\r')) {
+			name = '\\r';
+		} else if (Util.isNewLine(this.char)) {
+			name = '\\n';
+		} else if (Util.isSpace(this.char)) {
+			name = '[ ]';
+		}
 		return {
 			id: 'c' + id,
-			name: (this.char === ' ') ? '[ ]' : (this.char === '\r\n' || this.char === '\n' ? '\\n' : this.char),
+			name: name,
 			children: []
 		};
 	},

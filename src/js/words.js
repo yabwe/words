@@ -2,7 +2,7 @@ var Words = function (selector) {
 	this.element = document.querySelector(selector);
 	this.element.setAttribute('contenteditable', true);
 
-	Util.on(this.element, 'keyup', this.onInput.bind(this));
+	Util.on(this.element, 'input', this.onInput.bind(this));
 
 	this.doc = new Document(this.createHTMLWordString(this.element));
 
