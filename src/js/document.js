@@ -97,10 +97,6 @@ Document.prototype = {
 		this.blocks.splice(targetIndex, 0, block);
 	},
 
-	toDebugString: function () {
-		return this.blocks.join(Util.Char.NEW_LINE);
-	},
-
 	toJSON: function () {
 		var json = {
 			id: 'doc',

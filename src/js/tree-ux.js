@@ -31,7 +31,7 @@ var TreeUX = function (elementId) {
         orientation: 'top',
         //id of viz container element
         injectInto: elementId,
-        levelsToShow: 3,
+        levelsToShow: 4,
         //set duration for the animation
         duration: 800,
         //set animation transition type

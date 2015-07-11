@@ -37,7 +37,7 @@ Block.prototype = {
 
 		this.words.splice(targetIndex, 0, word);
 
-		word.checkForSpaces();
+		word.split();
 	},
 
 	insertBefore: function (refWord, word) {
@@ -50,7 +50,7 @@ Block.prototype = {
 		var targetIndex = this.words.indexOf(refWord);
 		this.words.splice(targetIndex, 0, word);
 
-		word.checkForSpaces();
+		word.split();
 	},
 
 	removeWordsAfter: function (refWord) {
@@ -76,16 +76,6 @@ Block.prototype = {
 			json.children.push(word.toJSON(id + '-' + index));
 		});
 		return json;
-	},
-
-	toDebugString: function () {
-		var str = '<' + this.type + '>';
-		if (!this.words.length) {
-			str += '<br/>';
-		} else {
-			str += this.words.join(Util.Char.SPACE);
-		}
-		return str + '</' + this.type + '>';
 	},
 
 	toHTML: function () {

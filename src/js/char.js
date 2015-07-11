@@ -21,16 +21,8 @@ Char.prototype = {
 		return {
 			id: 'c' + id,
 			name: name,
-			children: []
+			children: this.getProps()
 		};
-	},
-
-	toDebugString: function () {
-		var str = this.char;
-		this.getProps().forEach(function (prop) {
-			str += '(' + prop + ')';
-		}, this);
-		return str;
 	},
 
 	getProps: function () {

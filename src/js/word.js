@@ -35,7 +35,7 @@ Word.prototype = {
 		}
 	},
 
-	checkForSpaces: function () {
+	split: function () {
 		var currentChars = [],
 			thisBlockWords = [],
 			thisWordChars,
@@ -143,7 +143,7 @@ Word.prototype = {
 			this.chars.splice.apply(this.chars, [target, 0].concat(chars));
 		}
 
-		this.checkForSpaces();
+		this.split();
 	},
 
 	insertBefore: function (refChar, chars) {
@@ -165,7 +165,7 @@ Word.prototype = {
 			this.chars.splice.apply(this.chars, [target, 0].concat(chars));
 		}
 
-		this.checkForSpaces();
+		this.split();
 	},
 
 	removeChar: function (char) {
@@ -189,10 +189,6 @@ Word.prototype = {
 			json.children.push(char.toJSON(id + '-' + index));
 		});
 		return json;
-	},
-
-	toDebugString: function () {
-		return this.chars.join('');
 	},
 
 	getChars: function () {
