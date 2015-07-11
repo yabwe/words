@@ -4,7 +4,7 @@ var Words = function (selector) {
 
 	Util.on(this.element, 'input', this.onInput.bind(this));
 
-	this.doc = new Document(this.createHTMLWordString(this.element));
+	this.doc = new Document(Util.createHTMLWordString(this.element));
 
 	Array.prototype.slice.call(document.querySelectorAll('button')).forEach(function (button) {
 		Util.on(button, 'click', this.onToolbarButtonClick.bind(this));
@@ -15,30 +15,6 @@ var Words = function (selector) {
 }
 
 Words.prototype = {
-
-	createHTMLWordString: function (root) {
-		var skipRoot = false;
-		if (Util.blockNames.indexOf(root.nodeName.toLowerCase()) !== -1) {
-			skipRoot = true;
-		}
-		var x = null;
-		var treeWalker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, x, false);
-		var str = '';
-		while (treeWalker.nextNode()) {
-			var node = treeWalker.currentNode;
-			if (skipRoot && node === root) {
-				continue;
-			}
-			if (node.nodeType === 3) {
-				str += node.nodeValue;
-			} else {
-				if (Util.blockNames.indexOf(node.nodeName.toLowerCase()) !== -1) {
-					str += '\r\n';
-				}
-			}
-		}
-		return str;
-	},
 
 	onToolbarButtonClick: function (event) {
 		var target = event.currentTarget;
@@ -51,16 +27,16 @@ Words.prototype = {
 	},
 
 	execCustomAction: function (action) {
-		var selection = this.exportSelection(this.element);
+		var selection = Util.exportSelection(this.element);
 		document.getElementById('previous-state').value = this.doc.toString();
 		this.doc.execAction(action, selection);
 		this.element.innerHTML = this.doc.toHTML();
-		this.importSelection(selection, this.element);
+		Util.importSelection(selection, this.element);
 		document.getElementById('new-state').value = this.doc.toString();
 	},
 
 	updateState: function (element) {
-		var nextStr = this.createHTMLWordString(element);
+		var nextStr = Util.createHTMLWordString(element);
 		var currStr = this.doc.toString();
 		var diff = JsDiff.diffChars(currStr, nextStr);
 		var index = 0;
@@ -80,76 +56,5 @@ Words.prototype = {
 
 	onInput: function (event) {
 		this.updateState(event.currentTarget);
-	},
-
-	exportSelection: function (root) {
-        if (!root) {
-            return null;
-        }
-
-        var selectionState = null,
-            selection = document.getSelection();
-
-        if (selection.rangeCount > 0) {
-            var range = selection.getRangeAt(0),
-                preSelectionRange = range.cloneRange(),
-                start;
-
-            preSelectionRange.selectNodeContents(root);
-            preSelectionRange.setEnd(range.startContainer, range.startOffset);
-            start = preSelectionRange.toString().length;
-
-            selectionState = {
-                start: start,
-                end: start + range.toString().length
-            };
-        }
-
-        return selectionState;
-    },
-
-    importSelection: function (selectionState, root) {
-        if (!selectionState || !root) {
-            return;
-        }
-
-        var range = document.createRange();
-        range.setStart(root, 0);
-        range.collapse(true);
-
-        var node = root,
-            nodeStack = [],
-            charIndex = 0,
-            foundStart = false,
-            stop = false,
-            nextCharIndex;
-
-        while (!stop && node) {
-            if (node.nodeType === 3) {
-                nextCharIndex = charIndex + node.length;
-                if (!foundStart && selectionState.start >= charIndex && selectionState.start <= nextCharIndex) {
-                    range.setStart(node, selectionState.start - charIndex);
-                    foundStart = true;
-                }
-                if (foundStart && selectionState.end >= charIndex && selectionState.end <= nextCharIndex) {
-                    range.setEnd(node, selectionState.end - charIndex);
-                    stop = true;
-                }
-                charIndex = nextCharIndex;
-            } else {
-                var i = node.childNodes.length - 1;
-                while (i >= 0) {
-                    nodeStack.push(node.childNodes[i]);
-                    i -= 1;
-                }
-            }
-            if (!stop) {
-                node = nodeStack.pop();
-            }
-        }
-
-        var sel = document.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
-    }
+	}
 }
