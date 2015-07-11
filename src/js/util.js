@@ -11,11 +11,11 @@ var Util = {
 	'dt', 'li', 'tbody', 'td', 'th', 'thead', 'tr'],
 
 	isNewLine: function (str) {
-		return str === '\r\n' || str === '\n';
+		return str === '\n';
 	},
 
 	isSpace: function (str) {
-		return !!(str.match(/^\s+$/) && str !== '\r');
+		return !!(str.match(/^\s+$/));
 	},
 
 	on: function (target, event, listener, useCapture) {
@@ -39,7 +39,7 @@ var Util = {
 				str += node.nodeValue;
 			} else {
 				if (this.blockNames.indexOf(node.nodeName.toLowerCase()) !== -1) {
-					str += '\r\n';
+					str += '\n';
 				}
 			}
 		}

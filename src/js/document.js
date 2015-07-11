@@ -108,7 +108,7 @@ Document.prototype = {
 	},
 
 	toDebugString: function () {
-		return this.blocks.join('\r\n');
+		return this.blocks.join('\n');
 	},
 
 	toJSON: function () {

@@ -13,9 +13,7 @@ Char.prototype = {
 
 	toJSON: function (id) {
 		var name = this.char;
-		if (this.char.match('\r')) {
-			name = '\\r';
-		} else if (Util.isNewLine(this.char)) {
+		if (Util.isNewLine(this.char)) {
 			name = '\\n';
 		} else if (Util.isSpace(this.char)) {
 			name = '[ ]';
