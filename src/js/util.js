@@ -36,9 +36,10 @@ var Util = {
 		if (this.blockNames.indexOf(root.nodeName.toLowerCase()) !== -1) {
 			skipRoot = true;
 		}
-		var x = null;
-		var treeWalker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, x, false);
-		var str = '';
+		var x = null,
+			treeWalker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, x, false);
+			str = '',
+			hitNonBlock = false;
 		while (treeWalker.nextNode()) {
 			var node = treeWalker.currentNode;
 			if (skipRoot && node === root) {
@@ -46,9 +47,14 @@ var Util = {
 			}
 			if (node.nodeType === 3) {
 				str += node.nodeValue;
+				hitNonBlock = true;
 			} else {
 				if (this.blockNames.indexOf(node.nodeName.toLowerCase()) !== -1) {
-					str += this.Char.NEW_LINE;
+					if (hitNonBlock) {
+						str += this.Char.NEW_LINE;
+					}
+				} else {
+					hitNonBlock = true;
 				}
 			}
 		}
