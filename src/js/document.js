@@ -2,6 +2,8 @@ var Document = function (text) {
 	this.chars = [];
 	this.blocks = [new Block(null, this)];
 	this.chars = this.chars.concat(this.blocks[0].getChars());
+	//this.head = this.chars[0];
+	this.tail = this.chars[0];
 
 	if (text) {
 		this.insertCharsAt(0, text);
@@ -51,10 +53,10 @@ Document.prototype = {
 			newChars.push(new Char(part));
 		}, this);
 
-		if (nextChar) {
+		if (exists(nextChar)) {
 			nextWord = nextChar.parent;
 		}
-		if (prevChar) {
+		if (exists(prevChar)) {
 			prevWord = prevChar.parent;
 		}
 

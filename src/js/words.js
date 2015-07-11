@@ -32,7 +32,7 @@ Words.prototype = {
 			if (node.nodeType === 3) {
 				str += node.nodeValue;
 			} else {
-				if (str !== '' && Util.blockNames.indexOf(node.nodeName.toLowerCase()) !== -1) {
+				if (Util.blockNames.indexOf(node.nodeName.toLowerCase()) !== -1) {
 					str += '\r\n';
 				}
 			}

@@ -2,7 +2,8 @@ var Block = function (words, parent) {
 	this.parent = parent;
 
 	if (!words || !words.length) {
-		this.words = [new Word('', this)];
+		//this.words = [new Word([new Char(''), new Char('')], this)];
+		this.words = [new Word([new Char('')], this)];
 	} else {
 		this.words = words;
 		this.words.forEach(function (word) {
@@ -39,11 +40,6 @@ Block.prototype = {
 			targetIndex += 1;
 		}
 
-		// Inserting at the end means inserting before the ending
-		// new-line terminator word (which would be -1 for splice)
-		//
-		// Coincidentally, indexOf() returns -1 if it can't find
-		// the ref. So, we can just use targetIndex for splice()
 		this.words.splice(targetIndex, 0, word);
 
 		word.checkForSpaces();
@@ -56,10 +52,19 @@ Block.prototype = {
 
 		word.parent = this;
 
-		var targetIndex = this.word.indexOf(refWord);
+		var targetIndex = this.words.indexOf(refWord);
 		this.words.splice(targetIndex, 0, word);
 
 		word.checkForSpaces();
+	},
+
+	removeWordsAfter: function (refWord) {
+		var targetIndex = this.words.indexOf(refWord);
+		if (targetIndex === -1 || targetIndex === (this.words.length - 1)) {
+			return [];
+		}
+
+		return this.words.splice(targetIndex + 1, this.words.length);
 	},
 
 	toString: function () {

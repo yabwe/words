@@ -1,3 +1,7 @@
+var exists = function (v) {
+	return v || v === '' || v === 0 || v === false;
+}
+
 var Util = {
 
 	blockNames: ['address', 'blockquote', 'div', 'dl', 'fieldset', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'noscript', 'ol', 'p', 'pre',
@@ -7,7 +11,7 @@ var Util = {
 	'dt', 'li', 'tbody', 'td', 'th', 'thead', 'tr'],
 
 	isNewLine: function (str) {
-		return !!str.match(/(\r\n|\n)/);
+		return str === '\r\n' || str === '\n';
 	},
 
 	isSpace: function (str) {

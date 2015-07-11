@@ -60,7 +60,7 @@ Word.prototype = {
 				currentChars = [];
 
 				// If we hit a newline, we need to start a new block
-				if (!Util.isSpace(char.char)) {
+				if (Util.isNewLine(char.char)) {
 					if (nextBlock) {
 						newBlocks.push(nextBlock);
 					}
@@ -103,10 +103,18 @@ Word.prototype = {
 		// Now, let's start creating blocks
 		if (newBlocks.length) {
 			var prevBlock = this.parent;
+			// Since we're creating new blocks, we will need to move all
+			// sibling words of this word into the final created block
+			var siblingWords = this.parent.removeWordsAfter(this);
 			newBlocks.forEach(function (words) {
 				var block = new Block(words);
 				prevBlock.parent.insertAfter(prevBlock, block);
 				prevBlock = block;
+			});
+			// If we have sibling words, they need to added to the end
+			// of the final created blocked
+			siblingWords.forEach(function (word) {
+				prevBlock.insertAfter(null, word);
 			});
 		}
 	},
