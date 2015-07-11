@@ -39,18 +39,6 @@ Document.prototype = {
 			prevChar = this.chars[index - 1],
 			prevWord;
 
-		if (nextChar && index < (this.chars.length - 1) && Util.isSpace(nextChar.char)) {
-			nextChar.char = str[0];
-			if (str.length === 1) {
-				return;
-			}
-
-			str = str.substr(1);
-			index += 1;
-			prevChar = nextChar;
-			nextChar = this.chars[index];
-		}
-
 		str.split('').forEach(function (part) {
 			newChars.push(new Char(part));
 		}, this);
@@ -65,7 +53,7 @@ Document.prototype = {
 		if (nextWord === prevWord || !prevWord) {
 			nextWord.insertBefore(nextChar, newChars);
 		} else {
-			if (Util.isSpace(prevChar.char)) {
+			if (Util.isNewLine(prevChar.char) || Util.isSpace(prevChar.char)) {
 				if (nextWord) {
 					nextWord.insertBefore(null, newChars);
 				} else {
