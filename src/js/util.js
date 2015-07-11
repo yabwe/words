@@ -58,7 +58,7 @@ var Util = {
 				}
 			}
 		}
-		return str.replace(new RegExp(this.Char.NBSP, 'g'), ' ');
+		return str.replace(new RegExp(this.Char.NBSP, 'g'), this.Char.SPACE);
 	},
 
 	exportSelection: function (root) {
