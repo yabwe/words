@@ -1,8 +1,17 @@
+/*
+ * A Block is an object which represents a chunk of text which is separated by other chunks of text by new lines.
+ *
+ * Block objects have 2 main properties:
+ *
+ * 1. words
+ *    - Array of all the Word objects which are its children.
+ * 2. parent
+ *    - A reference to its parent Document object.
+ */
 var Block = function (words, parent) {
 	this.parent = parent;
 
 	if (!words || !words.length) {
-		//this.words = [new Word([new Char(''), new Char('')], this)];
 		this.words = [new Word([new Char('')], this)];
 	} else {
 		this.words = words;

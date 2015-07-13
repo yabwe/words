@@ -1,3 +1,17 @@
+/*
+ * A Word is an object which represents a chunk of text which is separated by other chunks of text by spaces (within the same **Block**).  All words will contain their ending character, which will either be:
+ *    - A Space (' ')
+ *    - A Newline ('\n')
+ *    - An Empty String ('')
+ *       - The last word in the **Document** will have this empty string as a terminator
+ *
+ * Word objects have 2 main properties:
+ *
+ * 1. chars
+ *    - Array of all the Char objects which are its children.
+ * 2. parent
+ *    - A reference to its parent Block object.
+ */
 var Word = function (text, parent) {
 	this.parent = parent;
 

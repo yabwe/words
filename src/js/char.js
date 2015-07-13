@@ -1,3 +1,15 @@
+/*
+ * A Char is an object which represents a single character of text. Currently, this will be where all formatting information will be stored (ie bold, italic, blockquote, etc.).
+ *
+ * Char objects will represent every single character within a **Document**.  This includes spaces, newlines, and the empty character terminator.
+ *
+ * Char objects have 2 main properties:
+ *
+ * 1. props
+ *    - Key-Value pair representing a formatting property and whether it is applied (ie bold, italic, blockquote)
+ * 2. parent
+ *    - A reference to its parent Word object.
+ */
 var Char = function (char, parent) {
 	this.parent = parent;
 

@@ -1,3 +1,13 @@
+/*
+ * A Document is the top level object and the root of the tree. It represents all of the text within the editor.
+ *
+ * Document objects have 2 main properties:
+ *
+ * 1. blocks
+ *    - Array of all the **Block** objects which are its children.  These are loosely tied to block elements in that blocks are always separated by new lines.
+ * 2. chars
+ *    - Array of all the **Char** objects within the entire editor.  These are the leaf-nodes of the data tree.
+ */
 var Document = function (text) {
 	this.chars = [];
 	this.blocks = [new Block(null, this)];

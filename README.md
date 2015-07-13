@@ -37,7 +37,7 @@ A **Document** is the top level object and the root of the tree. It represents a
 
 1. **blocks**
   * Array of all the **Block** objects which are its children.  These are loosely tied to block elements in that blocks are always separated by new lines.
-2. **chras**
+2. **chars**
   * Array of all the **Char** objects within the entire editor.  These are the leaf-nodes of the data tree.
 
 ### Block
