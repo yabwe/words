@@ -94,6 +94,25 @@ Block.prototype = {
 		return this.words.splice(targetIndex + 1, this.words.length);
 	},
 
+	/* removeWord(word)
+	 *
+	 * Remove the specified Word object
+	 * If this block is empty, it will remove
+	 * itself from the Document
+	 */
+	removeWord: function (word) {
+		var index = this.words.indexOf(word);
+		if (index !== -1) {
+			this.words.splice(index, 1);
+			word.parent = null;
+		}
+
+		// If block is empty, remove it
+		if (this.words.length === 0) {
+			this.parent.removeBlock(this);
+		}
+	},
+
 	getChars: function () {
 		return this.words.reduce(function (prev, curr) {
 			return prev.concat(curr.getChars());

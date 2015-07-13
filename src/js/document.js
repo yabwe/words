@@ -141,6 +141,18 @@ Document.prototype = {
 		this.blocks.splice(targetIndex, 0, block);
 	},
 
+	/* removeBlock(block)
+	 *
+	 * Remove the specified block
+	 */
+	removeBlock: function (block) {
+		var index = this.blocks.indexOf(block);
+		if (index !== -1) {
+			this.blocks.splice(index, 1);
+			block.parent = null;
+		}
+	},
+
 	toJSON: function () {
 		var json = {
 			id: 'doc',

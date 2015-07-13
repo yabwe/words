@@ -65,6 +65,10 @@ Word.prototype = {
 		}
 	},
 
+	merge: function () {
+
+	},
+
 	/* split()
 	 *
 	 * Look for spaces and newlines within this word
@@ -216,12 +220,20 @@ Word.prototype = {
 	/* removeChar(char)
 	 *
 	 * Remove the provided Char object from the list
-	 * of chars in this word
+	 * of chars in this word.
+	 * If the word becomes empty, it will remove
+	 * itself from the block it's in
 	 */
 	removeChar: function (char) {
 		var index = this.chars.indexOf(char);
 		if (index !== -1) {
 			this.chars.splice(index, 1);
+			char.parent = null;
+		}
+
+		// If word is empty, remove it
+		if (this.chars.length === 0) {
+			this.parent.removeWord(this);
 		}
 	},
 
