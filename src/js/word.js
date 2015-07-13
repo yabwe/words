@@ -19,18 +19,34 @@ var Word = function (text, parent) {
 
 Word.prototype = {
 
+	/* toggleProp(prop)
+	 *
+	 * Given some property name (ie bold, italic), toggle its value for
+	 * all of the chars within this word
+	 *
+	 */
 	toggleProp: function (prop) {
 		var setTrue = false;
-		this.chars.forEach(function (next) {
-			if (!next.props[prop]) {
-				next.props[prop] = true;
+		/* Loop through each char
+		 * If a char has a false value for the property, set it to true
+		 *
+		 * ie: If half a word is bold, make the whole word bold
+		 */
+		this.chars.forEach(function (char) {
+			if (!char.props[prop]) {
+				char.props[prop] = true;
 				setTrue = true;
 			}
 		});
 
+		/* If the entire word already had the property set to true
+		 * loop back through and turn the property off.
+		 *
+		 * ie: If an entire word is already bold, make it all unbold
+		 */
 		if (!setTrue) {
-			this.chars.forEach(function (next) {
-				next.props[prop] = false;
+			this.chars.forEach(function (char) {
+				char.props[prop] = false;
 			});
 		}
 	},

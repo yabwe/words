@@ -4,7 +4,6 @@ var Document = function (text) {
 	this.chars = this.blocks.reduce(function (prev, curr) {
 		return prev.concat(curr.getChars());
 	}, []);
-	//this.head = this.chars[0];
 	this.tail = this.chars[0];
 
 	if (text) {
@@ -13,14 +12,25 @@ var Document = function (text) {
 }
 
 Document.prototype = {
+
+	/* execAction(action, selection)
+	 *
+	 * Given an action (ie bold, italic) and a selection data object
+	 * apply the action to all the chars/words within the selection
+	 */
 	execAction: function (action, selection) {
 		var nextWord;
+		// Since this.chars is an array, we can index directly into it to
+		// find the CHAR nodes within the selection
 		if (this.chars[selection.start]) {
 			for (var i = selection.start; i < this.chars.length && i < selection.end; i++) {
 				var next = this.chars[i];
+				// For now, let's only apply actions on words.  This means just find the parent
+				// of each char, and apply the action if we haven't already
 				if (next.parent !== nextWord) {
 					nextWord = next.parent;
 					if (nextWord) {
+						// Call toggleProp(), which should turn the property on/off for the whole word
 						nextWord.toggleProp(action);
 					}
 				}
