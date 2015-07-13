@@ -1,5 +1,5 @@
 {
-  "name": "word",
+  "name": "words",
   "version": "0.0.0",
   "description": "Words",
   "main": "index.html",
@@ -8,17 +8,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/daviferreira/words"
+    "url": "http://github.com/yabwe/words"
   },
   "author": "Nate Mielnik",
-  "license": "ISC",
-  "dependencies": {
-    "diff": "1.4.0",
+  "license": "MIT",
+  "devDependencies": {
     "connect": "^3.4.0",
     "serve-static": "^1.10.0"
   },
-  "bugs": {
-    "url": "https://github.com/daviferreira/words/issues"
+  "dependencies": {
+    "diff": "1.4.0"
   },
-  "homepage": "http://github.com/daviferreira/words"
+  "bugs": {
+    "url": "https://github.com/yabwe/words/issues"
+  },
+  "homepage": "http://github.com/yabwe/words"
 }
