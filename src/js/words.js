@@ -28,11 +28,11 @@ Words.prototype = {
 
 	execCustomAction: function (action) {
 		var selection = Util.exportSelection(this.element);
-		document.getElementById('previous-state').value = this.doc.toString();
+		//document.getElementById('previous-state').value = this.doc.toString();
 		this.doc.execAction(action, selection);
 		this.element.innerHTML = this.doc.toHTML();
 		Util.importSelection(selection, this.element);
-		document.getElementById('new-state').value = this.doc.toString();
+		//document.getElementById('new-state').value = this.doc.toString();
 	},
 
 	updateState: function (element) {
