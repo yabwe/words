@@ -44,7 +44,7 @@ Words.prototype = {
 
 	updateState: function (element) {
 		var nextStr = Util.createHTMLWordString(element), // text representation of current DOM
-		var currStr = this.doc.toString(), // text representation of the current tree
+			currStr = this.doc.toString(), // text representation of the current tree
 			diff = JsDiff.diffChars(currStr, nextStr), // JsDiff of two strings
 			index = 0;
 

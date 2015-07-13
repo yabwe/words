@@ -24,12 +24,14 @@ var Block = function (words, parent) {
 Block.prototype = {
 	type: 'p',
 
-	getChars: function () {
-		return this.words.reduce(function (prev, curr) {
-			return prev.concat(curr.getChars());
-		}, []);
-	},
-
+	/* insertAfter(refWord, word)
+	 *
+	 * Insert a single Word object into this list
+	 * of words, after the provided reference Word (refWord)
+	 *
+	 * If refWord doesn't exist or isn't found, the word
+	 * is added to the end
+	 */
 	insertAfter: function (refWord, word) {
 		if (!word) {
 			return;
@@ -49,6 +51,14 @@ Block.prototype = {
 		word.split();
 	},
 
+	/* insertBefore(refWord, word)
+	 *
+	 * Insert a single Word object into this list
+	 * of words, before the provided reference Word (refWord)
+	 *
+	 * If refWord doesn't exist or isn't found, the word
+	 * is added to the front
+	 */
 	insertBefore: function (refWord, word) {
 		if (!word) {
 			return;
@@ -57,11 +67,24 @@ Block.prototype = {
 		word.parent = this;
 
 		var targetIndex = this.words.indexOf(refWord);
-		this.words.splice(targetIndex, 0, word);
+		if (targetIndex === -1) {
+			this.words.unshift(word);
+		} else {
+			this.words.splice(targetIndex, 0, word);
+		}
 
 		word.split();
 	},
 
+	/* removeWordsAfter(refWord)
+	 *
+	 * Remove all the words within this block that
+	 * are after the provided reference Word (refWord)
+	 *
+	 * An array of the removed Word objects is returned
+	 *
+	 * The refWord is NOT removed
+	 */
 	removeWordsAfter: function (refWord) {
 		var targetIndex = this.words.indexOf(refWord);
 		if (targetIndex === -1 || targetIndex === (this.words.length - 1)) {
@@ -71,8 +94,10 @@ Block.prototype = {
 		return this.words.splice(targetIndex + 1, this.words.length);
 	},
 
-	toString: function () {
-		return this.words.join('');
+	getChars: function () {
+		return this.words.reduce(function (prev, curr) {
+			return prev.concat(curr.getChars());
+		}, []);
 	},
 
 	toJSON: function (id) {
@@ -85,6 +110,10 @@ Block.prototype = {
 			json.children.push(word.toJSON(id + '-' + index));
 		});
 		return json;
+	},
+
+	toString: function () {
+		return this.words.join('');
 	},
 
 	toHTML: function () {

@@ -48,6 +48,15 @@ Document.prototype = {
 		}
 	},
 
+	/* insertCharsAt(index, str)
+	 *
+	 * Given a string and a target index, create new
+	 * Char objects for each character and insert them into
+	 * the tree data structure.
+	 *
+	 * This includes splitting up the tree when spaces and
+	 * newlines are inserted
+	 */
 	insertCharsAt: function (index, str) {
 		if (!str) {
 			return;
@@ -85,9 +94,16 @@ Document.prototype = {
 			}
 		}
 
+		// All of the chars now have their proper parent word objects
+		// and the tree is updated, so just insert the chars into the array
 		this.chars.splice.apply(this.chars, [index, 0].concat(newChars));
 	},
 
+	/* removeCharsAt(index, count)
+	 *
+	 * Remove a specified amount of Char objects from the
+	 * tree, starting at the specified index
+	 */
 	removeCharsAt: function (index, count) {
 		if (!this.chars[index]) {
 			return;
@@ -100,6 +116,14 @@ Document.prototype = {
 		});
 	},
 
+	/* insertAfter(refBlock, block)
+	 *
+	 * Insert a single Block object into this list
+	 * of blocks, after the provided reference Block (refBlock)
+	 *
+	 * If refBlock doesn't exist or isn't found, the block
+	 * is added to the end
+	 */
 	insertAfter: function (refBlock, block) {
 		if (!block) {
 			return;

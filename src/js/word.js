@@ -65,6 +65,12 @@ Word.prototype = {
 		}
 	},
 
+	/* split()
+	 *
+	 * Look for spaces and newlines within this word
+	 * Each space means create a new words
+	 * Each newline means create a new block
+	 */
 	split: function () {
 		var currentChars = [],
 			thisBlockWords = [],
@@ -152,6 +158,14 @@ Word.prototype = {
 		}
 	},
 
+	/* insertAfter(refChar, char)
+	 *
+	 * Insert an array of Char objects into this word
+	 * all after the provided reference char (refChar)
+	 *
+	 * If refChar doesn't exist or isn't found, all the chars
+	 * are added to the end
+	 */
 	insertAfter: function (refChar, chars) {
 		if (!chars) {
 			return;
@@ -161,21 +175,25 @@ Word.prototype = {
 			char.parent = this;
 		}, this);
 
-		if (!refChar) {
+		var targetIndex = this.chars.indexOf(refChar);
+		if (targetIndex === -1) {
 			this.chars = this.chars.concat(chars);
 		} else {
-			var target = this.chars.indexOf(refChar);
-			if (target === -1) {
-				target = this.chars.length;
-			} else {
-				target = target + 1;
-			}
-			this.chars.splice.apply(this.chars, [target, 0].concat(chars));
+			targetIndex = targetIndex + 1;
+			this.chars.splice.apply(this.chars, [targetIndex, 0].concat(chars));
 		}
 
 		this.split();
 	},
 
+	/* insertBefore(refChar, char)
+	 *
+	 * Insert an array of Char objects into this word
+	 * all before the provided reference char (refChar)
+	 *
+	 * If refChar doesn't exist or isn't found, all the chars
+	 * are inserted at the beginning of the word
+	 */
 	insertBefore: function (refChar, chars) {
 		if (!chars) {
 			return;
@@ -185,19 +203,21 @@ Word.prototype = {
 			char.parent = this;
 		}, this);
 
-		if (!refChar) {
+		var targetIndex = this.chars.indexOf(refChar);
+		if (targetIndex === -1) {
 			this.chars = chars.concat(this.chars);
 		} else {
-			var target = this.chars.indexOf(refChar);
-			if (target == -1) {
-				target = 0;
-			}
-			this.chars.splice.apply(this.chars, [target, 0].concat(chars));
+			this.chars.splice.apply(this.chars, [targetIndex, 0].concat(chars));
 		}
 
 		this.split();
 	},
 
+	/* removeChar(char)
+	 *
+	 * Remove the provided Char object from the list
+	 * of chars in this word
+	 */
 	removeChar: function (char) {
 		var index = this.chars.indexOf(char);
 		if (index !== -1) {
@@ -205,8 +225,8 @@ Word.prototype = {
 		}
 	},
 
-	toString: function () {
-		return this.chars.join('');
+	getChars: function () {
+		return this.chars;
 	},
 
 	toJSON: function (id) {
@@ -221,8 +241,8 @@ Word.prototype = {
 		return json;
 	},
 
-	getChars: function () {
-		return this.chars;
+	toString: function () {
+		return this.chars.join('');
 	},
 
 	toHTML: function () {

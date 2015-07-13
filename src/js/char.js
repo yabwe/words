@@ -19,8 +19,14 @@ var Char = function (char, parent) {
 
 Char.prototype = {
 
-	toString: function () {
-		return this.char;
+	getProps: function () {
+		var props = [];
+		Object.keys(this.props).forEach(function (prop) {
+			if (this.props[prop]) {
+				props.push(prop);
+			}
+		}, this);
+		return props;
 	},
 
 	toJSON: function (id) {
@@ -37,14 +43,8 @@ Char.prototype = {
 		};
 	},
 
-	getProps: function () {
-		var props = [];
-		Object.keys(this.props).forEach(function (prop) {
-			if (this.props[prop]) {
-				props.push(prop);
-			}
-		}, this);
-		return props;
+	toString: function () {
+		return this.char;
 	},
 
 	toHTML: function () {
