@@ -24,6 +24,24 @@ var Block = function (words, parent) {
 Block.prototype = {
 	type: 'p',
 
+	/* merge(block)
+	 *
+	 * Merge the provided block into this block
+	 */
+	merge: function (block) {
+		var first = true;
+		while(block.getWords().length) {
+			var nextWord = block.removeWord(block.getFirstWord());
+			nextWord.parent = this;
+			if (first) {
+				this.getLastWord().merge(nextWord);
+				first = false;
+			} else {
+				this.words.push(nextWord);
+			}
+		}
+	},
+
 	/* insertAfter(refWord, word)
 	 *
 	 * Insert a single Word object into this list
@@ -111,6 +129,20 @@ Block.prototype = {
 		if (this.words.length === 0) {
 			this.parent.removeBlock(this);
 		}
+
+		return word;
+	},
+
+	getWords: function () {
+		return this.words;
+	},
+
+	getFirstWord: function () {
+		return this.words[0];
+	},
+
+	getLastWord: function () {
+		return this.words[this.words.length - 1];
 	},
 
 	getChars: function () {

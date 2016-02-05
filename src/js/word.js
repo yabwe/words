@@ -65,8 +65,25 @@ Word.prototype = {
 		}
 	},
 
-	merge: function () {
+	/* merge(word)
+	 *
+	 * merge the provided word into this word
+	 */
+	merge: function (word) {
+		// If the words are in separate blocks, we need to merge the blocks
+		if (this.parent !== word.parent) {
+			// Calling block.merge() will handle merging the words too
+			this.parent.merge(word.parent);
+			return;
+		}
 
+		while (word.getChars().length) {
+			var nextChar = word.removeChar(word.getFirstChar());
+			nextChar.parent = this;
+			this.chars.push(nextChar);
+		}
+
+		this.split();
 	},
 
 	/* split()
@@ -227,7 +244,7 @@ Word.prototype = {
 	removeChar: function (char) {
 		var index = this.chars.indexOf(char);
 		if (index !== -1) {
-			this.chars.splice(index, 1);
+			removed = this.chars.splice(index, 1);
 			char.parent = null;
 		}
 
@@ -235,10 +252,20 @@ Word.prototype = {
 		if (this.chars.length === 0) {
 			this.parent.removeWord(this);
 		}
+
+		return char;
 	},
 
 	getChars: function () {
 		return this.chars;
+	},
+
+	getFirstChar: function () {
+		return this.chars[0];
+	},
+
+	getLastChar: function () {
+		return this.chars[this.chars.length - 1];
 	},
 
 	toJSON: function (id) {

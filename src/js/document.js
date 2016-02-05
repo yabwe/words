@@ -109,11 +109,19 @@ Document.prototype = {
 			return;
 		}
 
+		var prevChar = this.chars[index - 1];
+		var lastChar = this.chars[index + count];
+
 		var removedChars = this.chars.splice(index, count);
 
 		removedChars.forEach(function (char) {
 			char.parent.removeChar(char);
 		});
+
+		// If both chars are in the same word, we don't need to merge anything
+		if (prevChar && prevChar.parent !== lastChar.parent) {
+			prevChar.parent.merge(lastChar.parent);
+		}
 	},
 
 	/* insertAfter(refBlock, block)
