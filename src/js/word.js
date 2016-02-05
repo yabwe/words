@@ -77,12 +77,15 @@ Word.prototype = {
 			return;
 		}
 
+		// Remove each char from the other word, and add it to this one
 		while (word.getChars().length) {
 			var nextChar = word.removeChar(word.getFirstChar());
 			nextChar.parent = this;
 			this.chars.push(nextChar);
 		}
 
+		// We might have ended with a space, or the other word may have started
+		// with a space, so do a split to make sure
 		this.split();
 	},
 

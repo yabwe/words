@@ -31,8 +31,12 @@ Block.prototype = {
 	merge: function (block) {
 		var first = true;
 		while(block.getWords().length) {
+			// Remove the word from the previous block and update its parent reference
 			var nextWord = block.removeWord(block.getFirstWord());
 			nextWord.parent = this;
+
+			// If this is the first word we're merging in, we need to attempt to merge the words together.
+			// If there's a space in there, word.merge() accounts for it
 			if (first) {
 				this.getLastWord().merge(nextWord);
 				first = false;
