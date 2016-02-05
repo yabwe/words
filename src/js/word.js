@@ -244,7 +244,7 @@ Word.prototype = {
 	removeChar: function (char) {
 		var index = this.chars.indexOf(char);
 		if (index !== -1) {
-			removed = this.chars.splice(index, 1);
+			this.chars.splice(index, 1);
 			char.parent = null;
 		}
 
