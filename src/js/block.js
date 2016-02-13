@@ -24,6 +24,28 @@ var Block = function (words, parent) {
 Block.prototype = {
 	type: 'p',
 
+	/* merge(block)
+	 *
+	 * Merge the provided block into this block
+	 */
+	merge: function (block) {
+		var first = true;
+		while(block.getWords().length) {
+			// Remove the word from the previous block and update its parent reference
+			var nextWord = block.removeWord(block.getFirstWord());
+			nextWord.parent = this;
+
+			// If this is the first word we're merging in, we need to attempt to merge the words together.
+			// If there's a space in there, word.merge() accounts for it
+			if (first) {
+				this.getLastWord().merge(nextWord);
+				first = false;
+			} else {
+				this.words.push(nextWord);
+			}
+		}
+	},
+
 	/* insertAfter(refWord, word)
 	 *
 	 * Insert a single Word object into this list
@@ -111,6 +133,20 @@ Block.prototype = {
 		if (this.words.length === 0) {
 			this.parent.removeBlock(this);
 		}
+
+		return word;
+	},
+
+	getWords: function () {
+		return this.words;
+	},
+
+	getFirstWord: function () {
+		return this.words[0];
+	},
+
+	getLastWord: function () {
+		return this.words[this.words.length - 1];
 	},
 
 	getChars: function () {
