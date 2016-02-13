@@ -13,9 +13,12 @@
   "author": "Nate Mielnik",
   "license": "MIT",
   "devDependencies": {
+    "chai": "^3.5.0",
     "connect": "^3.4.0",
     "grunt": "0.4.5",
     "grunt-contrib-concat": "0.5.1",
+    "grunt-mocha-test": "^0.12.7",
+    "mocha": "^2.4.5",
     "serve-static": "^1.10.0"
   },
   "dependencies": {
