@@ -1,9 +1,5 @@
 
 module.exports = function(grunt) {
-	grunt.loadNpmTasks('grunt-contrib-concat');
-	grunt.loadNpmTasks('grunt-mocha-test');
-	grunt.loadNpmTasks('grunt-browserify');
-
 	var globalConfig = {
 			src: 'src',
 			dest: 'dev'
@@ -13,6 +9,7 @@ module.exports = function(grunt) {
 			globalConfig: globalConfig
 		};
 
+	grunt.loadNpmTasks('grunt-browserify');
 	gruntConfig.browserify = {
 		dist: {
 			files: {
@@ -21,6 +18,7 @@ module.exports = function(grunt) {
 		}
 	};
 
+	grunt.loadNpmTasks('grunt-contrib-concat');
 	gruntConfig.concat = {
 		options: {
 			stripBanners: true
@@ -32,6 +30,7 @@ module.exports = function(grunt) {
 		}
 	};
 
+	grunt.loadNpmTasks('grunt-mocha-test');
 	gruntConfig.mochaTest = {
 		test: {
 			options: {
@@ -39,11 +38,27 @@ module.exports = function(grunt) {
 			},
 			src: ['test/**/*.js']
 		}
-	}
+	};
+
+	grunt.loadNpmTasks('grunt-mocha-istanbul');
+	gruntConfig.mocha_istanbul = {
+		coverage: {
+			src: ['test/**/*.js'],
+			options: {
+				reporter: 'spec',
+				mask: '*.spec.js'
+			}
+		}
+	};
 
 	grunt.initConfig(gruntConfig);
 
+	/*grunt.event.on('coverage', function (lcovFileContents, done) {
+		done();
+	});*/
+
+	grunt.registerTask('coverage', ['mocha_istanbul:coverage']);
 	grunt.registerTask('build', ['browserify', 'concat']);
-	grunt.registerTask('test', ['build', 'mochaTest']);
-	grunt.registerTask('default', ['test']);
+	grunt.registerTask('test', ['mochaTest']);
+	grunt.registerTask('default', ['test', 'build']);
 }
