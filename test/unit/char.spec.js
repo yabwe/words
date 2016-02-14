@@ -1,13 +1,7 @@
-// "coverage": "./node_modules/.bin/istanbul cover ./node_modules/mocha/bin/_mocha \"test/**/*.js\" -- --ui bdd -R spec"
-
 var assert = require('chai').assert;
 var expect = require('chai').expect;
 
-var fs = require('fs');
-var vm = require('vm');
-
-var code = fs.readFileSync('./src/js/char.js');
-vm.runInThisContext(code);
+var Char = require('../../src/js/char');
 
 describe('Char', function () {
 	describe('constructor', function () {
