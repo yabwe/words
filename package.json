@@ -18,7 +18,6 @@
     "connect": "^3.4.0",
     "grunt": "0.4.5",
     "grunt-browserify": "^4.0.1",
-    "grunt-contrib-concat": "0.5.1",
     "grunt-mocha-istanbul": "^3.0.1",
     "grunt-mocha-test": "^0.12.7",
     "istanbul": "^0.4.2",

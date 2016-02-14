@@ -1,31 +1,17 @@
 
 module.exports = function(grunt) {
-	var globalConfig = {
-			src: 'src',
-			dest: 'dev'
-		},
-		gruntConfig = {
+	var gruntConfig = {
 			pkg: grunt.file.readJSON('package.json'),
-			globalConfig: globalConfig
+			srcJsDir: 'src/js',
+			distDir: 'dist',
+			testDir: 'test'
 		};
 
 	grunt.loadNpmTasks('grunt-browserify');
 	gruntConfig.browserify = {
 		dist: {
 			files: {
-				'build/<%=pkg.name%>.js' : 'src/js/words.js'
-			}
-		}
-	};
-
-	grunt.loadNpmTasks('grunt-contrib-concat');
-	gruntConfig.concat = {
-		options: {
-			stripBanners: true
-		},
-		dist: {
-			files: {
-				'dist/<%=pkg.name%>.js': 'build/<%=pkg.name%>.js'
+				'<%= distDir %>/<%=pkg.name%>.js' : '<%= srcJsDir %>/<%= pkg.name %>.js'
 			}
 		}
 	};
@@ -33,32 +19,27 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-mocha-test');
 	gruntConfig.mochaTest = {
 		test: {
+			src: ['<%= testDir%>/**/*.js'],
 			options: {
 				reporter: 'spec'
-			},
-			src: ['test/**/*.js']
+			}
 		}
 	};
 
 	grunt.loadNpmTasks('grunt-mocha-istanbul');
 	gruntConfig.mocha_istanbul = {
 		coverage: {
-			src: ['test/**/*.js'],
+			src: ['<%= testDir %>/**/*.js'],
 			options: {
-				reporter: 'spec',
-				mask: '*.spec.js'
+				reporter: 'spec'
 			}
 		}
 	};
 
 	grunt.initConfig(gruntConfig);
 
-	/*grunt.event.on('coverage', function (lcovFileContents, done) {
-		done();
-	});*/
-
 	grunt.registerTask('coverage', ['mocha_istanbul:coverage']);
-	grunt.registerTask('build', ['browserify', 'concat']);
+	grunt.registerTask('build', ['browserify']);
 	grunt.registerTask('test', ['mochaTest']);
 	grunt.registerTask('default', ['test', 'build']);
 }
