@@ -1,3 +1,8 @@
+var Util = require('./util');
+var Block = require('./block');
+var Word = require('./word');
+var Char = require('./char');
+
 /*
  * A Document is the top level object and the root of the tree. It represents all of the text within the editor.
  *
@@ -72,10 +77,10 @@ Document.prototype = {
 			newChars.push(new Char(part));
 		}, this);
 
-		if (exists(nextChar)) {
+		if (Util.exists(nextChar)) {
 			nextWord = nextChar.parent;
 		}
-		if (exists(prevChar)) {
+		if (Util.exists(prevChar)) {
 			prevWord = prevChar.parent;
 		}
 
@@ -185,3 +190,5 @@ Document.prototype = {
 		return str;
 	}
 }
+
+module.exports = Document;

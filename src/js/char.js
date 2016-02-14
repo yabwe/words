@@ -1,3 +1,5 @@
+var Util = require('./util');
+
 /*
  * A Char is an object which represents a single character of text. Currently, this will be where all formatting information will be stored (ie bold, italic, blockquote, etc.).
  *
@@ -53,3 +55,5 @@ Char.prototype = {
 		return this.char;
 	}
 }
+
+module.exports = Char;

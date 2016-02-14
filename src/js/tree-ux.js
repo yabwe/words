@@ -1,3 +1,5 @@
+var jit = require('../../jit/jit');
+
 var labelType, useGradients, nativeTextSupport, animate;
 
 (function() {
@@ -147,3 +149,5 @@ TreeUX.prototype = {
         }.bind(this), 5)
     }
 }
+
+module.exports = TreeUX;

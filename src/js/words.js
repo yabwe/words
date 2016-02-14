@@ -1,3 +1,12 @@
+var Util = require('./util');
+var Document = require('./document');
+var JsDiff = require('diff');
+var TreeUX;
+
+if (typeof window !== 'undefined') {
+	TreeUX = require('./tree-ux');
+}
+
 var Words = function (selector) {
 	this.element = document.querySelector(selector);
 	this.element.setAttribute('contenteditable', true);
@@ -11,9 +20,11 @@ var Words = function (selector) {
 		Util.on(button, 'click', this.onToolbarButtonClick.bind(this));
 	}, this);
 
-	// Just for help while developing, create a visualization
-	// that shows the JSON tree-structure while text is being edited
-	this.treeUx = new TreeUX('tree-ux');
+	if (TreeUX) {
+		// Just for help while developing, create a visualization
+		// that shows the JSON tree-structure while text is being edited
+		this.treeUx = new TreeUX('tree-ux');
+	}
 
 	// Build tree from initial content
 	this.updateState(this.element);
@@ -74,10 +85,20 @@ Words.prototype = {
 
 		// For development only, update the tree visualization
 		var js = this.doc.toJSON();
-		this.treeUx.update(js);
+		if (this.treeUx) {
+			this.treeUx.update(js);
+		}
 	},
 
 	onInput: function (event) {
 		this.updateState(event.currentTarget);
 	}
 }
+
+Words.Util = Util;
+Words.Char = require('./char');
+Words.Word = require('./word');
+Words.Block = require('./block');
+Words.Document = Document;
+
+global.Words = module.exports = Words;
