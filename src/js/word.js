@@ -1,3 +1,6 @@
+var Util = require('./util');
+var Char = require('./char');
+
 /*
  * A Word is an object which represents a chunk of text which is separated by other chunks of text by spaces (within the same **Block**).  All words will contain their ending character, which will either be:
  *    - A Space (' ')
@@ -150,9 +153,7 @@ Word.prototype = {
 			// sibling words of this word into the final created block
 			var siblingWords = this.parent.removeWordsAfter(this);
 			newBlocks.forEach(function (words) {
-				var block = new Block(words);
-				prevBlock.parent.insertAfter(prevBlock, block);
-				prevBlock = block;
+				prevBlock = prevBlock.insertWordsAfter(words);
 			});
 			// If we have sibling words, they need to added to the end
 			// of the final created blocked
@@ -275,3 +276,5 @@ Word.prototype = {
 		return pre + content + post;
 	}
 }
+
+module.exports = Word;

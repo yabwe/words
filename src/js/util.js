@@ -1,7 +1,3 @@
-var exists = function (v) {
-	return v || v === '' || v === 0 || v === false;
-}
-
 var Util = {
 
 	blockNames: ['address', 'blockquote', 'div', 'dl', 'fieldset', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'noscript', 'ol', 'p', 'pre',
@@ -18,6 +14,10 @@ var Util = {
 	},
 
 	Char: {},
+
+	exists: function (v) {
+		return v || v === '' || v === 0 || v === false;
+	},
 
 	isNewLine: function (str) {
 		return !!(str && str.charCodeAt(0) === this.CharCode.NEW_LINE);
@@ -62,77 +62,79 @@ var Util = {
 	},
 
 	exportSelection: function (root) {
-        if (!root) {
-            return null;
-        }
+		if (!root) {
+			return null;
+		}
 
-        var selectionState = null,
-            selection = document.getSelection();
+		var selectionState = null,
+			selection = document.getSelection();
 
-        if (selection.rangeCount > 0) {
-            var range = selection.getRangeAt(0),
-                preSelectionRange = range.cloneRange(),
-                start;
+		if (selection.rangeCount > 0) {
+			var range = selection.getRangeAt(0),
+				preSelectionRange = range.cloneRange(),
+				start;
 
-            preSelectionRange.selectNodeContents(root);
-            preSelectionRange.setEnd(range.startContainer, range.startOffset);
-            start = preSelectionRange.toString().length;
+			preSelectionRange.selectNodeContents(root);
+			preSelectionRange.setEnd(range.startContainer, range.startOffset);
+			start = preSelectionRange.toString().length;
 
-            selectionState = {
-                start: start,
-                end: start + range.toString().length
-            };
-        }
+			selectionState = {
+				start: start,
+				end: start + range.toString().length
+			};
+		}
 
-        return selectionState;
-    },
+		return selectionState;
+	},
 
-    importSelection: function (selectionState, root) {
-        if (!selectionState || !root) {
-            return;
-        }
+	importSelection: function (selectionState, root) {
+		if (!selectionState || !root) {
+			return;
+		}
 
-        var range = document.createRange();
-        range.setStart(root, 0);
-        range.collapse(true);
+		var range = document.createRange();
+		range.setStart(root, 0);
+		range.collapse(true);
 
-        var node = root,
-            nodeStack = [],
-            charIndex = 0,
-            foundStart = false,
-            stop = false,
-            nextCharIndex;
+		var node = root,
+			nodeStack = [],
+			charIndex = 0,
+			foundStart = false,
+			stop = false,
+			nextCharIndex;
 
-        while (!stop && node) {
-            if (node.nodeType === 3) {
-                nextCharIndex = charIndex + node.length;
-                if (!foundStart && selectionState.start >= charIndex && selectionState.start <= nextCharIndex) {
-                    range.setStart(node, selectionState.start - charIndex);
-                    foundStart = true;
-                }
-                if (foundStart && selectionState.end >= charIndex && selectionState.end <= nextCharIndex) {
-                    range.setEnd(node, selectionState.end - charIndex);
-                    stop = true;
-                }
-                charIndex = nextCharIndex;
-            } else {
-                var i = node.childNodes.length - 1;
-                while (i >= 0) {
-                    nodeStack.push(node.childNodes[i]);
-                    i -= 1;
-                }
-            }
-            if (!stop) {
-                node = nodeStack.pop();
-            }
-        }
+		while (!stop && node) {
+			if (node.nodeType === 3) {
+				nextCharIndex = charIndex + node.length;
+				if (!foundStart && selectionState.start >= charIndex && selectionState.start <= nextCharIndex) {
+					range.setStart(node, selectionState.start - charIndex);
+					foundStart = true;
+				}
+				if (foundStart && selectionState.end >= charIndex && selectionState.end <= nextCharIndex) {
+					range.setEnd(node, selectionState.end - charIndex);
+					stop = true;
+				}
+				charIndex = nextCharIndex;
+			} else {
+				var i = node.childNodes.length - 1;
+				while (i >= 0) {
+					nodeStack.push(node.childNodes[i]);
+					i -= 1;
+				}
+			}
+			if (!stop) {
+				node = nodeStack.pop();
+			}
+		}
 
-        var sel = document.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
-    }
+		var sel = document.getSelection();
+		sel.removeAllRanges();
+		sel.addRange(range);
+	}
 }
 
 Object.keys(Util.CharCode).forEach(function (name) {
 	Util.Char[name] = String.fromCharCode(Util.CharCode[name]);
 });
+
+module.exports = Util;

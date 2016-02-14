@@ -1,3 +1,7 @@
+var Util = require('./util');
+var Word = require('./word');
+var Char = require('./char');
+
 /*
  * A Block is an object which represents a chunk of text which is separated by other chunks of text by new lines.
  *
@@ -49,6 +53,12 @@ Block.prototype = {
 		this.words.splice(targetIndex, 0, word);
 
 		word.split();
+	},
+
+	insertWordsAfter: function (words) {
+		var newBlock = new Block(words);
+		this.parent.insertAfter(this, newBlock);
+		return newBlock;
 	},
 
 	/* insertBefore(refWord, word)
@@ -146,3 +156,5 @@ Block.prototype = {
 		return '<' + this.type + '>' + content + '</' + this.type + '>';
 	}
 }
+
+module.exports = Block;

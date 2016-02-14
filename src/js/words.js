@@ -1,3 +1,12 @@
+var Util = require('./util');
+var Document = require('./document');
+var JsDiff = require('diff');
+var TreeUX;
+
+if (typeof window !== 'undefined') {
+	TreeUX = require('./tree-ux');
+}
+
 var Words = function (selector) {
 	this.element = document.querySelector(selector);
 	this.element.setAttribute('contenteditable', true);
@@ -85,3 +94,11 @@ Words.prototype = {
 		this.updateState(event.currentTarget);
 	}
 }
+
+Words.Util = Util;
+Words.Char = require('./char');
+Words.Word = require('./word');
+Words.Block = require('./block');
+Words.Document = Document;
+
+global.Words = module.exports = Words;
