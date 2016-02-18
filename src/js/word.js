@@ -249,7 +249,7 @@ Word.prototype = {
 		var index = this.chars.indexOf(char);
 		if (index !== -1) {
 			this.chars.splice(index, 1);
-			char.parent = null;
+			delete char.parent;
 		}
 
 		// If word is empty, remove it
@@ -300,8 +300,8 @@ Word.prototype = {
 			content += next.toHTML();
 		}, this);
 		Object.keys(tags).forEach(function (tag) {
-			pre = '<' + tag + '>' + pre;
-			post = post + '</' + tag + '>';
+			pre = pre + '<' + tag + '>';
+			post = '</' + tag + '>' + post;
 		});
 		return pre + content + post;
 	}

@@ -1,4 +1,3 @@
-var assert = require('chai').assert;
 var expect = require('chai').expect;
 
 var Char = require('../../src/js/char');
@@ -19,13 +18,24 @@ describe('Char', function () {
 			expect(char.props).to.be.empty;
 		});
 
-		it('should aceept a character and a parent reference', function () {
+		it('should accept a character and a parent reference', function () {
 			var tempParent = {},
 				tempChar = 'X',
 				char = new Char('X', tempParent);
 
 			expect(char.char).to.equal(tempChar);
 			expect(char.parent).to.equal(tempParent);
+		});
+
+		it('should accept props as an object', function () {
+			var props = {
+					'b': true,
+					'i': false
+				},
+				char = new Char('X', null, props);
+
+			expect(char.props).to.equal(props);
+			expect(char.getProps()).to.deep.equal(['b']);
 		});
 	});
 
