@@ -91,15 +91,15 @@ describe('Word', function () {
 	describe('removeChar', function () {
 		it('should remove the provided Char and return it', function () {
 			var word = new Word('chars '),
-				target = word.chars[2];
+				target = word.getChars()[2];
 
-			expect(word.chars.length).to.equal(6);
+			expect(word.getChars().length).to.equal(6);
 			expect(target.parent).to.equal(word);
 
 			var returned = word.removeChar(target);
 			expect(returned).to.equal(target);
 			expect(returned.parent).to.be.undefined;
-			expect(word.chars.length).to.equal(5);
+			expect(word.getChars().length).to.equal(5);
 			expect(word.toString()).to.equal('chrs ');
 		});
 
@@ -118,16 +118,16 @@ describe('Word', function () {
 				},
 				word = new Word('a ', parent);
 
-			expect(word.chars.length).to.equal(2);
+			expect(word.getChars().length).to.equal(2);
 
-			var returned = word.removeChar(word.chars[0]);
+			var returned = word.removeChar(word.getChars()[0]);
 			expect(returned.parent).to.be.undefined;
-			expect(word.chars.length).to.equal(1);
+			expect(word.getChars().length).to.equal(1);
 			expect(parent.removeWord).not.to.have.been.called;
 
-			returned = word.removeChar(word.chars[0]);
+			returned = word.removeChar(word.getChars()[0]);
 			expect(returned.parent).to.be.undefined;
-			expect(word.chars.length).to.equal(0);
+			expect(word.getChars().length).to.equal(0);
 			expect(parent.removeWord).to.have.been.calledWith(word);
 		});
 	});
@@ -199,7 +199,7 @@ describe('Word', function () {
 				word = new Word(str),
 				res = word.toString();
 
-			expect(word.chars[0]).to.be.an.instanceof(Char);
+			expect(word.getChars()[0]).to.be.an.instanceof(Char);
 			expect(res).to.be.a('string');
 			expect(res).to.equal(str);
 		});
@@ -211,7 +211,7 @@ describe('Word', function () {
 				word = new Word(str),
 				res = word.toHTML();
 
-			expect(word.chars[0]).to.be.an.instanceof(Char);
+			expect(word.getChars()[0]).to.be.an.instanceof(Char);
 			expect(res).to.be.a('string');
 			expect(res).to.equal(str);
 		});
@@ -237,12 +237,12 @@ describe('Word', function () {
 		it('should turn on a prop for all child Chars', function () {
 			var word = new Word('chars ');
 
-			word.chars.forEach(function (char) {
+			word.getChars().forEach(function (char) {
 				expect(char.props).to.deep.equal({});
 			});
 
 			word.toggleProp('b');
-			word.chars.forEach(function (char) {
+			word.getChars().forEach(function (char) {
 				expect(char.props).to.deep.equal({ 'b': true });
 			});
 		});
@@ -259,7 +259,7 @@ describe('Word', function () {
 				word = new Word(chars);
 
 			word.toggleProp('b');
-			word.chars.forEach(function (char) {
+			word.getChars().forEach(function (char) {
 				expect(char.props['b']).to.be.true;
 			});
 		});
@@ -276,9 +276,210 @@ describe('Word', function () {
 				word = new Word(chars);
 
 				word.toggleProp('b');
-				word.chars.forEach(function (char) {
+				word.getChars().forEach(function (char) {
 					expect(char.props['b']).to.be.false;
 				});
+		});
+	});
+
+	describe('split', function () {
+		it('should split a Word containing a space into 2 Words', function () {
+			var parent = {
+					otherWord: null,
+					refWord: null,
+					insertAfter: function (refWord, otherWord) {
+						this.refWord = refWord;
+						this.otherWord = otherWord;
+					}
+				},
+				word = new Word('chars morechars ', parent);
+
+			expect(word.parent).to.equal(parent);
+			word.split();
+			expect(word.toString()).to.equal('chars ');
+			expect(parent.refWord).to.equal(word);
+			expect(parent.otherWord).not.to.be.null;
+			expect(parent.otherWord.toString()).to.equal('morechars ');
+		});
+
+		it('should split a Word into multiple words if there are multiple space before the end of the Word', function () {
+			var parent = {
+					otherWords: [],
+					insertAfter: function (refWord, otherWord) {
+						this.otherWords.push(otherWord);
+						otherWord.parent = this;
+					}
+				},
+				word = new Word('c h a r s ', parent);
+
+			expect(word.parent).to.equal(parent);
+			word.split();
+			expect(word.toString()).to.equal('c ');
+			expect(parent.otherWords.length).to.equal(4);
+			expect(parent.otherWords[0].toString()).to.equal('h ');
+			expect(parent.otherWords[1].toString()).to.equal('a ');
+			expect(parent.otherWords[2].toString()).to.equal('r ');
+			expect(parent.otherWords[3].toString()).to.equal('s ');
+		});
+
+		it('should not do anything if the Word does not contain a space or newline before the end of the Word', function () {
+			var parent = {
+					otherWord: null,
+					refWord: null,
+					insertAfter: function (refWord, otherWord) {
+						this.refWord = refWord;
+						this.otherWord = otherWord;
+					}
+				},
+				word = new Word('chars ', parent);
+
+			expect(word.parent).to.equal(parent);
+			word.split();
+			expect(word.toString()).to.equal('chars ');
+			expect(parent.refWord).to.be.null;
+			expect(parent.otherWord).to.be.null;
+		});
+
+		// TODO: Should test splitting word that contains newlines
+		// However, the code should be refactored to not make multiple calls
+		// to different methods on parent object, so refactor and then make tests
+	});
+
+	describe('merge', function () {
+		it('should merge Chars from another Word into this Word', function () {
+			var parent = {
+					removeWord: sinon.spy()
+				},
+				word = new Word('cha', parent),
+				otherWord = new Word('rs ', parent);
+
+			expect(word.parent).to.equal(parent);
+			expect(otherWord.parent).to.equal(parent);
+
+			word.merge(otherWord);
+			expect(word.toString()).to.equal('chars ');
+			expect(word.parent).to.equal(parent);
+			word.getChars().forEach(function (char) {
+				expect(char.parent).to.equal(word);
+			});
+			expect(parent.removeWord).to.have.been.calledWith(otherWord);
+			expect(otherWord.getChars().length).to.equal(0);
+		});
+
+		it('should merge and then split words if needed', function () {
+			var parent = {
+					otherWords: [],
+					insertAfter: function (refWord, otherWord) {
+						this.otherWords.push(otherWord);
+						otherWord.parent = this;
+					},
+					removeWord: sinon.spy()
+				},
+				word = new Word('chars one ', parent),
+				splitSpy = sinon.spy(word, 'split'),
+				otherWord = new Word('chars word ', parent);
+
+			word.merge(otherWord);
+			expect(splitSpy).to.have.been.called;
+			expect(word.toString()).to.equal('chars ');
+			expect(otherWord.getChars()).to.be.empty;
+			expect(parent.otherWords.length).to.equal(3);
+			expect(parent.otherWords[0].toString()).to.equal('one ');
+			expect(parent.otherWords[1].toString()).to.equal('chars ');
+			expect(parent.otherWords[2].toString()).to.equal('word ');
+		});
+
+		it('should call merge on its parent if the other Word is not paret of the same parent', function () {
+			var parent = {
+					merge: sinon.spy()
+				},
+				word = new Word('cha', parent),
+				parentTwo = {},
+				wordTwo = new Word('rs ', parentTwo);
+
+			expect(word.parent).to.equal(parent);
+			expect(wordTwo.parent).to.equal(parentTwo);
+
+			word.merge(wordTwo);
+			expect(parent.merge).to.have.been.calledWith(parentTwo);
+		});
+	});
+
+	describe('insertBefore', function () {
+		it('should add Chars before the provided char', function () {
+			var word = new Word('chs '),
+				chars = [new Char('a'), new Char('r')],
+				letterS = word.getChars()[2];
+
+			expect(word.getChars().length).to.equal(4);
+
+			word.insertBefore(letterS, chars);
+			chars.forEach(function (char) {
+				expect(char.parent).to.equal(word);
+			});
+			expect(word.toString()).to.equal('chars ');
+		});
+
+		it('should add Chars at the beginning of the Word if invalid reference is passed', function () {
+			var word = new Word('ars '),
+				letterH = new Char('h'),
+				letterC = new Char('c');
+
+			expect(word.toString()).to.equal('ars ');
+
+			word.insertBefore(letterC, [letterH]);
+			expect(letterH.parent).to.equal(word);
+			expect(word.toString()).to.equal('hars ');
+
+			word.insertBefore(null, [letterC]);
+			expect(letterC.parent).to.equal(word);
+			expect(word.toString()).to.equal('chars ');
+		});
+
+		it('should do nothing if nothing is passed', function () {
+			var word = new Word('chars ');
+
+			word.insertBefore();
+			expect(word.toString()).to.equal('chars ');
+		});
+	});
+
+	describe('insertAfter', function () {
+		it('should add Chars after the provided char', function () {
+			var word = new Word('chs '),
+				chars = [new Char('a'), new Char('r')],
+				letterH = word.getChars()[1];
+
+			expect(word.getChars().length).to.equal(4);
+
+			word.insertAfter(letterH, chars);
+			chars.forEach(function (char) {
+				expect(char.parent).to.equal(word);
+			});
+			expect(word.toString()).to.equal('chars ');
+		});
+
+		it('should add Chars at the end of the Word if invalid reference is passed', function () {
+			var word = new Word('char'),
+				letterS = new Char('s'),
+				letterSpace = new Char(' ');
+
+			expect(word.toString()).to.equal('char');
+
+			word.insertAfter(letterSpace, [letterS]);
+			expect(letterS.parent).to.equal(word);
+			expect(word.toString()).to.equal('chars');
+
+			word.insertAfter(null, [letterSpace]);
+			expect(letterSpace.parent).to.equal(word);
+			expect(word.toString()).to.equal('chars ');
+		});
+
+		it('should do nothing if nothing is passed', function () {
+			var word = new Word('chars ');
+
+			word.insertAfter();
+			expect(word.toString()).to.equal('chars ');
 		});
 	});
 });
