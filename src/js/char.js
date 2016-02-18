@@ -26,7 +26,7 @@ Char.prototype = {
 	getProps: function () {
 		var props = [];
 		Object.keys(this.props).forEach(function (prop) {
-			if (this.props[prop]) {
+			if (this.props[prop] === true) {
 				props.push(prop);
 			}
 		}, this);
