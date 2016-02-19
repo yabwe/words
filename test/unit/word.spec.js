@@ -302,7 +302,7 @@ describe('Word', function () {
 			expect(parent.otherWord.toString()).to.equal('morechars ');
 		});
 
-		it('should split a Word into multiple words if there are multiple space before the end of the Word', function () {
+		it('should split a Word into multiple words if there are multiple spaces before the end of the Word', function () {
 			var parent = {
 					otherWords: [],
 					insertAfter: function (refWord, otherWord) {
@@ -340,9 +340,45 @@ describe('Word', function () {
 			expect(parent.otherWord).to.be.null;
 		});
 
-		// TODO: Should test splitting word that contains newlines
-		// However, the code should be refactored to not make multiple calls
-		// to different methods on parent object, so refactor and then make tests
+		it('should split a Word into multiple Blocks and Words when it contains newlines and spaces', function () {
+			var parent = {
+					words: [],
+					otherBlocks: [],
+					refWord: null,
+					splitAndInsertBlocks: function (refWord, wordArrays) {
+						this.refWord = refWord;
+						wordArrays.forEach(function (wordArray) {
+							this.otherBlocks.push(wordArray);
+						}, this);
+					},
+					insertAfter: function (prevWord, word) {
+						var index = this.words.indexOf(prevWord);
+						this.words.splice(index + 1, 0, word);
+						word.parent = this;
+					}
+				},
+				word = new Word('block one\nblock two\nblock three', parent);
+
+			parent.words = [word];
+
+			word.split();
+			expect(word.parent).to.equal(parent);
+			expect(word.toString()).to.equal('block ');
+			expect(parent.words.length).to.equal(2);
+			expect(parent.words[0]).to.equal(word);
+			var secondWord = parent.words[1];
+			expect(secondWord.toString()).to.equal('one\n');
+			expect(parent.refWord).to.equal(secondWord);
+			expect(parent.otherBlocks.length).to.equal(2);
+			var blockTwo = parent.otherBlocks[0];
+			expect(blockTwo.length).to.equal(2);
+			expect(blockTwo[0].toString()).to.equal('block ');
+			expect(blockTwo[1].toString()).to.equal('two\n');
+			var blockThree = parent.otherBlocks[1];
+			expect(blockThree.length).to.equal(2);
+			expect(blockThree[0].toString()).to.equal('block ');
+			expect(blockThree[1].toString()).to.equal('three');
+		});
 	});
 
 	describe('merge', function () {
