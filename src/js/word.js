@@ -158,28 +158,17 @@ Word.prototype = {
 		}
 
 		// First, let's add any new words to this block
+		var lastWord = this;
 		if (thisBlockWords.length) {
-			var prevWord = this;
 			thisBlockWords.forEach(function (word) {
-				prevWord.parent.insertAfter(prevWord, word);
-				prevWord = word;
+				lastWord.parent.insertAfter(lastWord, word);
+				lastWord = word;
 			});
 		}
 
 		// Now, let's start creating blocks
 		if (newBlocks.length) {
-			var prevBlock = this.parent;
-			// Since we're creating new blocks, we will need to move all
-			// sibling words of this word into the final created block
-			var siblingWords = this.parent.removeWordsAfter(this);
-			newBlocks.forEach(function (words) {
-				prevBlock = prevBlock.insertWordsAfter(words);
-			});
-			// If we have sibling words, they need to added to the end
-			// of the final created blocked
-			siblingWords.forEach(function (word) {
-				prevBlock.insertAfter(null, word);
-			});
+			this.parent.splitAndInsertBlocks(lastWord, newBlocks);
 		}
 	},
 
@@ -249,7 +238,7 @@ Word.prototype = {
 		var index = this.chars.indexOf(char);
 		if (index !== -1) {
 			this.chars.splice(index, 1);
-			char.parent = null;
+			delete char.parent;
 		}
 
 		// If word is empty, remove it
@@ -300,8 +289,8 @@ Word.prototype = {
 			content += next.toHTML();
 		}, this);
 		Object.keys(tags).forEach(function (tag) {
-			pre = '<' + tag + '>' + pre;
-			post = post + '</' + tag + '>';
+			pre = pre + '<' + tag + '>';
+			post = '</' + tag + '>' + post;
 		});
 		return pre + content + post;
 	}

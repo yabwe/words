@@ -14,11 +14,11 @@ var Util = require('./util');
  * 3. parent
  *    - A reference to its parent Word object.
  */
-var Char = function (char, parent) {
+var Char = function (char, parent, props) {
 	this.parent = parent;
 
 	this.char = char || '';
-	this.props = {};
+	this.props = props || {};
 }
 
 Char.prototype = {
