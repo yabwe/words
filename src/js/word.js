@@ -158,17 +158,17 @@ Word.prototype = {
 		}
 
 		// First, let's add any new words to this block
+		var lastWord = this;
 		if (thisBlockWords.length) {
-			var prevWord = this;
 			thisBlockWords.forEach(function (word) {
-				prevWord.parent.insertAfter(prevWord, word);
-				prevWord = word;
+				lastWord.parent.insertAfter(lastWord, word);
+				lastWord = word;
 			});
 		}
 
 		// Now, let's start creating blocks
 		if (newBlocks.length) {
-			this.parent.splitAndInsertBlocks(this, newBlocks);
+			this.parent.splitAndInsertBlocks(lastWord, newBlocks);
 		}
 	},
 
