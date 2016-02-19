@@ -11,13 +11,13 @@ var Words = function (selector) {
 	this.element = document.querySelector(selector);
 	this.element.setAttribute('contenteditable', true);
 
-	Util.on(this.element, 'input', this.onInput.bind(this));
+	this.element.addEventListener('input', this.onInput.bind(this));
 
 	this.doc = new Document(Util.createHTMLWordString(this.element));
 
 	// Attach to click for the toolbar
 	Array.prototype.slice.call(document.querySelectorAll('button')).forEach(function (button) {
-		Util.on(button, 'click', this.onToolbarButtonClick.bind(this));
+		button.addEventListener('click', this.onToolbarButtonClick.bind(this));
 	}, this);
 
 	if (TreeUX) {

@@ -27,10 +27,6 @@ var Util = {
 		return !!(str && str.match(/^\s+$/) && !this.isNewLine(str));
 	},
 
-	on: function (target, event, listener, useCapture) {
-		target.addEventListener(event, listener, useCapture);
-	},
-
 	createHTMLWordString: function (root) {
 		var skipRoot = false;
 		if (this.blockNames.indexOf(root.nodeName.toLowerCase()) !== -1) {
