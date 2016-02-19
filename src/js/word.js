@@ -168,18 +168,7 @@ Word.prototype = {
 
 		// Now, let's start creating blocks
 		if (newBlocks.length) {
-			var prevBlock = this.parent;
-			// Since we're creating new blocks, we will need to move all
-			// sibling words of this word into the final created block
-			var siblingWords = prevBlock.removeWordsAfter(this);
-			newBlocks.forEach(function (words) {
-				prevBlock = prevBlock.insertWordsAfter(words);
-			});
-			// If we have sibling words, they need to added to the end
-			// of the final created block
-			siblingWords.forEach(function (word) {
-				prevBlock.insertAfter(null, word);
-			});
+			this.parent.splitAndInsertBlocks(this, newBlocks);
 		}
 	},
 
