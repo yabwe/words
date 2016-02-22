@@ -1,7 +1,7 @@
 # words
 A humble yet ambitious attempt to build a WYSIWYG editor, backed by JSON, without relying on document.execCommand
 
-## Getting started
+## Getting Started
 
 **1)** Pull down the repo
 
@@ -14,16 +14,34 @@ npm install
 **3)** Start the server
 
 ```
-node index.js
+npm start
 ```
 
 **4)** Load the page
 
 ```
-http://localhost:8088/index.html
+http://localhost:8088
 ```
 
 **5)** Dance, everybody dance
+
+## Bundling JS
+
+```
+npm run build
+```
+
+## Running Unit Tests
+
+```
+npm test
+```
+
+## Running Code Coverage
+
+```
+npm run coverage
+```
 
 ## Current JSON Tree Structure
 
