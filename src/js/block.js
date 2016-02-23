@@ -12,7 +12,7 @@ var Char = require('./char');
  * 2. parent
  *    - A reference to its parent Document object.
  */
-var Block = function (words, parent) {
+var Block = function (words, parent, type) {
 	this.parent = parent;
 
 	if (!words || !words.length) {
@@ -22,6 +22,10 @@ var Block = function (words, parent) {
 		this.words.forEach(function (word) {
 			word.parent = this;
 		}, this);
+	}
+
+	if (type) {
+		this.type = type;
 	}
 }
 
@@ -190,6 +194,7 @@ Block.prototype = {
 		var json = {
 			id: 'b' + id,
 			name: 'B',
+			type: this.type,
 			children: []
 		};
 		this.words.forEach(function (word, index) {
@@ -206,9 +211,6 @@ Block.prototype = {
 		var content = '';
 		this.words.forEach(function (word, index) {
 			content += word.toHTML();
-			if (index !== (this.words.length - 1)) {
-				content += Util.Char.SPACE;
-			}
 		}, this);
 		return '<' + this.type + '>' + content + '</' + this.type + '>';
 	}
