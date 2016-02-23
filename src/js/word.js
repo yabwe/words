@@ -283,10 +283,12 @@ Word.prototype = {
 			post = '',
 			content = '';
 		this.chars.forEach(function (next) {
-			next.getProps().forEach(function (prop) {
-				tags[prop] = true;
-			});
-			content += next.toHTML();
+			if (!Util.isNewLine(next.char)) {
+				next.getProps().forEach(function (prop) {
+					tags[prop] = true;
+				});
+				content += next.toHTML();
+			}
 		}, this);
 		Object.keys(tags).forEach(function (tag) {
 			pre = pre + '<' + tag + '>';
