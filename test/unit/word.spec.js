@@ -223,7 +223,8 @@ describe('Word', function () {
 					new Char('a'),
 					new Char('r', null, { 'sup': true }),
 					new Char('s', null, { 'sup': false, 'sub': true }),
-					new Char(' ')
+					new Char(' '),
+					new Char('\n')
 				],
 				word = new Word(chars),
 				res = word.toHTML();
