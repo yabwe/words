@@ -123,7 +123,12 @@ Block.prototype = {
 			return [];
 		}
 
-		return this.words.splice(targetIndex + 1, this.words.length);
+		var removed = this.words.splice(targetIndex + 1, this.words.length);
+		removed.forEach(function (word) {
+			delete word.parent;
+		});
+
+		return removed;
 	},
 
 	/* removeWord(word)
@@ -136,7 +141,7 @@ Block.prototype = {
 		var index = this.words.indexOf(word);
 		if (index !== -1) {
 			this.words.splice(index, 1);
-			word.parent = null;
+			delete word.parent;
 		}
 
 		// If block is empty, remove it
