@@ -14,11 +14,9 @@ var Char = require('./char');
  *    - Array of all the **Char** objects within the entire editor.  These are the leaf-nodes of the data tree.
  */
 var Document = function (text) {
-	this.chars = [];
-	this.blocks = [new Block(null, this)];
-	this.chars = this.blocks.reduce(function (prev, curr) {
-		return prev.concat(curr.getChars());
-	}, []);
+	var block = new Block(null, this);
+	this.chars = block.getChars();
+	this.blocks = [block];
 	this.tail = this.chars[0];
 
 	if (text) {
@@ -111,7 +109,7 @@ Document.prototype = {
 	 */
 	removeCharsAt: function (index, count) {
 		if (!this.chars[index]) {
-			return;
+			return [];
 		}
 
 		var prevChar = this.chars[index - 1];
@@ -127,6 +125,8 @@ Document.prototype = {
 		if (prevChar && prevChar.parent !== lastChar.parent) {
 			prevChar.parent.merge(lastChar.parent);
 		}
+
+		return removedChars;
 	},
 
 	/* insertAfter(refBlock, block)
