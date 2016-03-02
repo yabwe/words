@@ -153,5 +153,78 @@ describe('Document', function () {
 			expect(doc.toString()).to.equal('block one\nblock two\nblock three');
 		});
 	});
+
+	describe('insertCharsAt', function () {
+		it('should create Chars and insert them at the specified index', function () {
+			var doc = new Document('block one\nblock two');
+			expect(doc.chars.length).to.equal(20);
+
+			doc.insertCharsAt(6, 'first ');
+			expect(doc.chars.length).to.equal(26);
+			expect(doc.toString()).to.equal('block first one\nblock two');
+
+			var letterF = doc.chars[6],
+				letterB = doc.chars[0];
+			expect(letterF.toString()).to.equal('f');
+			// different words
+			expect(letterF.parent).not.to.equal(letterB.parent);
+			// same block
+			expect(letterF.parent.parent).to.equal(letterB.parent.parent);
+		});
+
+		it('should create Chars and insert them at the beginning of the word', function () {
+			var doc = new Document('ock one\nblock two'),
+				firstWord = doc.chars[0].parent;
+			expect(doc.chars.length).to.equal(18);
+
+			doc.insertCharsAt(0, 'bl');
+			expect(doc.chars.length).to.equal(20);
+			expect(doc.toString()).to.equal('block one\nblock two');
+
+			var letterB = doc.chars[0];
+			expect(letterB.toString()).to.equal('b');
+			expect(letterB.parent).to.equal(firstWord);
+		});
+
+		it('should create Chars and insert them at the end of the word', function () {
+			var doc = new Document('block one\nblock two'),
+				lastWord = doc.chars[19].parent;
+
+			doc.insertCharsAt(16, 'twenty-');
+			expect(doc.toString()).to.equal('block one\nblock twenty-two');
+
+			var letterDash = doc.chars[22];
+			expect(letterDash.toString()).to.equal('-');
+			expect(letterDash.parent).to.equal(lastWord);
+		});
+
+		it('should create Chars, insert them at the specified index, and then split up Words, and Blocks', function () {
+			var doc = new Document('block one\nblock two');
+			expect(doc.blocks.length).to.equal(2);
+
+			doc.insertCharsAt(20, '\nblock middle\nblock again');
+			expect(doc.toString()).to.equal('block one\nblock two\nblock middle\nblock again');
+			expect(doc.blocks.length).to.equal(4);
+
+			var newBlockOne = doc.blocks[2],
+				newBlockTwo = doc.blocks[3];
+			expect(newBlockOne.toString()).to.equal('block middle\n');
+			expect(newBlockOne.getWords().length).to.equal(2);
+			expect(newBlockOne.getWords()[0].toString()).to.equal('block ');
+			expect(newBlockOne.getWords()[1].toString()).to.equal('middle\n');
+			expect(newBlockTwo.toString()).to.equal('block again');
+			expect(newBlockTwo.getWords()[0].toString()).to.equal('block ');
+			expect(newBlockTwo.getWords()[1].toString()).to.equal('again');
+		});
+
+		it('should do nothing if no string is passed', function () {
+			var doc = new Document('block one\nblock two');
+			expect(doc.chars.length).to.equal(20);
+
+			doc.insertCharsAt(1);
+			expect(doc.chars.length).to.equal(20);
+			expect(doc.toString()).to.equal('block one\nblock two');
+		});
+	});
 });
 
